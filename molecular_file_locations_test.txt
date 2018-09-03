@@ -1,0 +1,1 @@
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ZINC/npZincDL/13062018.natural-products.sdf	ZINC	NP

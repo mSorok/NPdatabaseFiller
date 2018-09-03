@@ -1,0 +1,4 @@
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ZINC/npZincDL/13062018.natural-products.sdf	ZINC	NP
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ZINC/12.07.2018.biogenic.smi	ZINC	BIOGENIC
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/Supernatural_vII/supernatural.SDF	SUPERNATURAL	NP
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ZINC/zincALL/zinc-all-for-sale.sdf	ZINC	ALL
