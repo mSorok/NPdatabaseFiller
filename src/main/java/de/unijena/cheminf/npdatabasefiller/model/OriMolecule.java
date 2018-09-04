@@ -5,7 +5,7 @@ import java.util.Date;
 
 
 @Entity
-@Table(name="OriMolecule")
+@Table(name="OriMolecule" , indexes = {  @Index(name = "IDX1", columnList = "inChi"), @Index(name = "IDX2", columnList = "source"), @Index(name = "IDX3", columnList = "status") } )
 public class OriMolecule implements IMolecule{
 
 
@@ -13,13 +13,19 @@ public class OriMolecule implements IMolecule{
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
+    @Column(length = 70)
     private String ori_mol_id;
 
+    @Column(length = 20)
     private String source;
 
-    private String InChi;
+    @Column(length=1000)
+    private String inChi;
 
-    private Integer is_a_NP;
+    @Column(length=1200)
+    private String smiles;
+
+    private String status;
 
     private Integer unique_mol_id;
 
@@ -62,19 +68,27 @@ public class OriMolecule implements IMolecule{
     }
 
     public String getInChi() {
-        return InChi;
+        return this.inChi;
     }
 
     public void setInChi(String inChi) {
-        InChi = inChi;
+        this.inChi = inChi;
     }
 
-    public Integer getIs_a_NP() {
-        return is_a_NP;
+    public String getSmiles() {
+        return smiles;
     }
 
-    public void setIs_a_NP(Integer is_a_NP) {
-        this.is_a_NP = is_a_NP;
+    public void setSmiles(String smiles) {
+        this.smiles = smiles;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Integer getUnique_mol_id() {
@@ -95,7 +109,7 @@ public class OriMolecule implements IMolecule{
 
     @Override
     public String toString(){
-        return getOri_mol_id()+"  "+getInChi()+"  "+getIs_a_NP();
+        return getOri_mol_id()+"  "+getInChi()+"  "+getStatus();
 
     }
 

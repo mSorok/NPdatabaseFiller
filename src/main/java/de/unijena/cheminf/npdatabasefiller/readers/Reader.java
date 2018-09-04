@@ -10,6 +10,8 @@ public interface Reader {
 
     Pair readFile(File file);
 
+    void readFileAndInsertInDB(File file, String source, String moleculeStatus);
+
     IAtomContainer checkMolecule(IAtomContainer molecule);
 
 

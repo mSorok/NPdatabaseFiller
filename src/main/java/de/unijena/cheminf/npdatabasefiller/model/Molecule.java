@@ -16,8 +16,10 @@ public class Molecule implements IMolecule{
 
     private Float NPL_score;
 
+    @Column(length = 1000)
     private String InChi;
 
+    @Column(length = 1000)
     private String SMILES;
 
 

@@ -1,14 +1,12 @@
 package de.unijena.cheminf.npdatabasefiller.readers;
 
-import de.unijena.cheminf.npdatabasefiller.readers.IReaderService;
+import de.unijena.cheminf.npdatabasefiller.services.ZincCurationFromList;
 import de.unijena.cheminf.npdatabasefiller.services.ZincCurationService;
-import org.javatuples.Pair;
 import org.javatuples.Triplet;
 import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.inchi.InChIGenerator;
 import org.openscience.cdk.inchi.InChIGeneratorFactory;
 import org.openscience.cdk.interfaces.IAtomContainer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -110,7 +108,7 @@ public class ReaderService implements IReaderService {
 
         if(totalDatabases.contains("ZINC")){
 
-            ZincCurationService zc = new ZincCurationService(dbMol);
+            ZincCurationFromList zc = new ZincCurationFromList(dbMol);
 
             //start ZincCurationService
             // pass to it all the molecules
@@ -134,6 +132,33 @@ public class ReaderService implements IReaderService {
 
 
     }
+
+    @Override
+    public HashSet<String> ReadMolecularFilesAndInsertInDatabase(){
+
+        HashSet<String> totalDatabases = new HashSet<String>();
+
+        for(Triplet<String, String, String> fi : this.listOfMolecularFiles){
+
+
+            String database = fi.getValue1();
+            String moleculeStatus = fi.getValue2();
+            totalDatabases.add(database);
+
+
+            ReadWorker rw = new ReadWorker(fi.getValue0(), fi.getValue1(), fi.getValue2());
+
+            boolean start = rw.startWorker();
+
+            if(start){
+                rw.doWorkWithInsertionInDB();
+            }
+        }
+
+        return totalDatabases;
+    }
+
+
 
 
 

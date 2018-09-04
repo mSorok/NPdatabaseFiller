@@ -5,6 +5,7 @@ import org.openscience.cdk.interfaces.IAtomContainer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public interface IReaderService {
 
@@ -15,6 +16,8 @@ public interface IReaderService {
     //Pair readMolecularFile(File file);
 
     //IAtomContainer checkMolecule(IAtomContainer molecule);
+
+    HashSet<String> ReadMolecularFilesAndInsertInDatabase();
 
 
     ArrayList<IAtomContainer> returnCorrectMolecules();

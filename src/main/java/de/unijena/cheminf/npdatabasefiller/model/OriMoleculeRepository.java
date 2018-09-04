@@ -1,18 +1,24 @@
 package de.unijena.cheminf.npdatabasefiller.model;
 
 
-//import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 
-
-import de.unijena.cheminf.npdatabasefiller.model.OriMolecule;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
 
-// This will be AUTO IMPLEMENTED by Spring into a Bean called userRepository
-
-//@Repository
-//@EnableFooRepositories
 public interface OriMoleculeRepository extends CrudRepository<OriMolecule, Integer> {
+    //implement search by id
+    // search by source
+    // search by is a NP
+
+
+
+    List<OriMolecule> findBySource(String source);
+
+    List<OriMolecule> findByInChi(String InChi);
+
+    List<OriMolecule> findBySourceAndStatus(String source, String status);
+
+
 
 }

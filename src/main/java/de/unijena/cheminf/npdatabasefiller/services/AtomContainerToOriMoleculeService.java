@@ -17,21 +17,16 @@ public class AtomContainerToOriMoleculeService implements AtomContainerToMolInst
     @Override
     public OriMolecule createMolInstance(IAtomContainer ac) {
 
+
         OriMolecule om = new OriMolecule();
         om.setOri_mol_id( ac.getID() );
         om.setSource(ac.getProperty("DATABASE"));
 
         om.setInChi(ac.getProperty("INCHI"));
 
-        if( ac.getProperty("MOL_STATUS").toString().equals("NP") ){
-            om.setIs_a_NP(1);
-        }
-        else{
-            om.setIs_a_NP(0);
-        }
+        om.setSmiles(ac.getProperty("SMILES"));
 
-
-
+        om.setStatus(ac.getProperty("MOL_STATUS"));
 
 
         return om;
@@ -41,4 +36,9 @@ public class AtomContainerToOriMoleculeService implements AtomContainerToMolInst
     public IAtomContainer createAtomContainer(IMolecule m) {
         return null;
     }
+
+    public void iAmAlive(){
+        System.out.println("I'm alive!");
+    }
+
 }

@@ -6,7 +6,5 @@ public interface IMolecule {
 
     void setId(Integer id);
 
-    Integer getIs_a_NP();
 
-    void setIs_a_NP(Integer is_a_NP);
 }

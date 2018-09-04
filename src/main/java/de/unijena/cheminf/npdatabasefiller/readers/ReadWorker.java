@@ -14,6 +14,10 @@ public class ReadWorker {
     private boolean acceptFileFormat = false;
     private String submittedFileFormat ;
 
+    private String fileSource;
+
+    private String moleculeStatus;
+
 
     private ArrayList<IAtomContainer> molecules ;
 
@@ -38,11 +42,22 @@ public class ReadWorker {
     }
 
 
+    public ReadWorker(String fileName, String database, String moleculeStatus){
+
+        this.fileToRead = new File(fileName);
+        this.fileSource = database;
+        this.moleculeStatus = moleculeStatus;
+
+
+        System.out.println("\n\n Working on: "+fileToRead.getAbsolutePath() + "\n\n");
+
+
+        acceptFileFormat = acceptFile(fileName);
+    }
+
+
     public boolean startWorker(){
-
-
         if(acceptFileFormat){
-            //this.molecules = doWork();
             return true;
         }
         else{
@@ -105,12 +120,51 @@ public class ReadWorker {
     }
 
 
+    public void doWorkWithInsertionInDB(){
+
+        Reader reader = null ;
+        if(this.submittedFileFormat.equals("mol")){
+            reader = new MOLReader();
+        }
+        else if(this.submittedFileFormat.equals("sdf")){
+            reader = new SDFReader();
+        }
+        else if(this.submittedFileFormat.equals("smi")){
+            reader = new SMILESReader();
+        }
+
+        reader.readFileAndInsertInDB(this.fileToRead, this.fileSource, this.moleculeStatus);
+
+    }
+
+
 
     public Pair<Integer, Integer> getFileStats() {
         return fileStats;
     }
 
 
+    public String getSubmittedFileFormat() {
+        return submittedFileFormat;
+    }
 
+    public void setSubmittedFileFormat(String submittedFileFormat) {
+        this.submittedFileFormat = submittedFileFormat;
+    }
 
+    public String getFileSource() {
+        return fileSource;
+    }
+
+    public void setFileSource(String fileSource) {
+        this.fileSource = fileSource;
+    }
+
+    public String getMoleculeStatus() {
+        return moleculeStatus;
+    }
+
+    public void setMoleculeStatus(String moleculeStatus) {
+        this.moleculeStatus = moleculeStatus;
+    }
 }

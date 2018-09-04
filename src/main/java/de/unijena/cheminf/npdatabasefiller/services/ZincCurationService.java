@@ -1,80 +1,59 @@
 package de.unijena.cheminf.npdatabasefiller.services;
 
-import org.openscience.cdk.interfaces.IAtomContainer;
 
-import java.util.ArrayList;
+import de.unijena.cheminf.npdatabasefiller.model.OriMolecule;
+import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class ZincCurationService {
 
-    private ArrayList<IAtomContainer> allMol;
-    private ArrayList<IAtomContainer> curatedMol;
-
-    private ArrayList<IAtomContainer> np;
-    private ArrayList<IAtomContainer> allm;
-    private ArrayList<IAtomContainer> biogenic;
-
-    public ZincCurationService(ArrayList<IAtomContainer> allMol){
-        this.allMol = allMol;
-
-        System.out.println("ZINC curation service started");
-
-    }
+    @Autowired
+    OriMoleculeRepository omr;
 
 
-    public ArrayList<IAtomContainer> doWork(){
-        this.curatedMol = new ArrayList<IAtomContainer>();
-
-        np = new ArrayList<IAtomContainer>();
-        allm = new ArrayList<IAtomContainer>();
-        biogenic = new ArrayList<IAtomContainer>();
+    public void doWork(){
 
 
-        for(IAtomContainer mol : this.allMol){
-            if(mol.getProperty("MOL_STATUS").toString().equals("NP") && mol.getProperty("DATABASE").toString().equals("ZINC")){
-                np.add(mol);
-            }
-            else if(mol.getProperty("MOL_STATUS").toString().equals("BIOGENIC") && mol.getProperty("DATABASE").toString().equals("ZINC")){
-                biogenic.add(mol);
-            }
-            else if (mol.getProperty("MOL_STATUS").toString().equals("ALL") && mol.getProperty("DATABASE").toString().equals("ZINC") ){
-                allm.add(mol);
-            }
-        }
+        // removing the NPs from ALL by InChi
+        for(OriMolecule omNP : omr.findBySourceAndStatus("ZINC", "NP") ){
 
-        if(!allm.isEmpty()) {
-
-            for(IAtomContainer m : allm) {
-
-                for(IAtomContainer n : np){
-
-                    if( m.getProperty("INCHI").equals(n.getProperty("INCHI"))   ){
-                        allm.remove(m);
-                    }
-
-                }
-                for(IAtomContainer bio : biogenic){
-
-                    if( m.getProperty("INCHI").equals(bio.getProperty("INCHI"))   ){
-                        allm.remove(m);
-                    }
-
+            for(OriMolecule candidate : omr.findByInChi( omNP.getInChi() )){
+                if( candidate.getId() != omNP.getId() ){
+                    omr.delete(candidate);
                 }
 
             }
         }
 
-        for (IAtomContainer m : allm) {
-            m.setProperty("MOL_STATUS", "SM");
+
+        // removing the NPs from ALL by InChi
+        for(OriMolecule omBIO : omr.findBySourceAndStatus("ZINC", "BIOGENIC") ){
+
+            for(OriMolecule candidate : omr.findByInChi( omBIO.getInChi() )){
+                if( candidate.getId() != omBIO.getId() ){
+                    omr.delete(candidate);
+                }
+
+            }
         }
-        this.curatedMol.addAll(allm);
-
-        this.curatedMol.addAll(np);
 
 
+        for(OriMolecule omAll : omr.findBySourceAndStatus("ZINC", "ALL")){
+            omAll.setStatus("SM");
+            omr.save(omAll);
+        }
 
-        //in curatedMol - only molecules annotated as SM or NP
-        return this.curatedMol;
+
     }
+
+
+
+
+
 
 
 
