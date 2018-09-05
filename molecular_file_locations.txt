@@ -1,4 +1,7 @@
 /Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ZINC/npZincDL/13062018.natural-products.sdf	ZINC	NP
-/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/Supernatural_vII/supernatural.SDF	SUPERNATURAL	NP
 /Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ZINC/12.07.2018.biogenic.smi	ZINC	BIOGENIC
-/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ZINC/zincALL/zinc-all-for-sale.sdf	ZINC	ALL
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ZINC/zincALL/zinc-all-for-sale.sdf	ZINC	SM
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/Supernatural_vII/supernatural.SDF	SUPERNATURAL	NP
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ChEBI/ChEBI_NP.sdf	CHEBI	NP
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/ChEMBL/ChEMBL_NP.sdf	CHEMBL	NP
+/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/PubChem/PubChem_tested_NP.sdf	PUBCHEM	NP

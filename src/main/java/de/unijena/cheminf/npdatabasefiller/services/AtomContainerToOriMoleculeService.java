@@ -2,7 +2,10 @@ package de.unijena.cheminf.npdatabasefiller.services;
 
 import de.unijena.cheminf.npdatabasefiller.model.IMolecule;
 import de.unijena.cheminf.npdatabasefiller.model.OriMolecule;
+import org.openscience.cdk.exception.InvalidSmilesException;
 import org.openscience.cdk.interfaces.IAtomContainer;
+import org.openscience.cdk.silent.SilentChemObjectBuilder;
+import org.openscience.cdk.smiles.SmilesParser;
 import org.springframework.stereotype.Service;
 
 
@@ -35,6 +38,21 @@ public class AtomContainerToOriMoleculeService implements AtomContainerToMolInst
     @Override
     public IAtomContainer createAtomContainer(IMolecule m) {
         return null;
+    }
+
+
+    public IAtomContainer createAtomContainer(OriMolecule m) {
+
+        IAtomContainer ac = null;
+
+        try {
+            SmilesParser sp  = new SmilesParser(SilentChemObjectBuilder.getInstance());
+            ac   = sp.parseSmiles( m.getSmiles() );
+        } catch (InvalidSmilesException e) {
+            System.err.println(e.getMessage());
+        }
+
+        return ac;
     }
 
     public void iAmAlive(){

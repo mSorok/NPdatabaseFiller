@@ -7,11 +7,13 @@ import de.unijena.cheminf.npdatabasefiller.misc.MoleculeChecker;
 import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
 import de.unijena.cheminf.npdatabasefiller.services.AtomContainerToOriMoleculeService;
 import org.javatuples.Pair;
+import org.openscience.cdk.CDKConstants;
 import org.openscience.cdk.DefaultChemObjectBuilder;
 import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.inchi.InChIGenerator;
 import org.openscience.cdk.inchi.InChIGeneratorFactory;
 import org.openscience.cdk.interfaces.IAtomContainer;
+import org.openscience.cdk.interfaces.IBond;
 import org.openscience.cdk.io.SDFWriter;
 import org.openscience.cdk.io.iterator.IteratingSDFReader;
 import org.openscience.cdk.smiles.SmiFlavor;
@@ -134,7 +136,10 @@ public class SDFReader implements Reader {
             System.out.println("SDF reader creation and inserting in database");
             reader.setSkip(true);
 
-            while (reader.hasNext()) {
+
+
+            //TODO to CHANGE!
+            while (reader.hasNext() && count <= 100000) {
                 try {
                     IAtomContainer molecule = reader.next();
 
@@ -143,12 +148,35 @@ public class SDFReader implements Reader {
 
                     molecule.setProperty("DATABASE", source);
                     molecule.setProperty("MOL_STATUS", moleculeStatus);
+
+                    molecule = checkMolecule(molecule);
+
                     try {
                         InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
                         molecule.setProperty("INCHI", gen.getInchi());
                     } catch (CDKException e) {
-                        System.out.println("Failed to generate InChi fore : "+molecule.getProperties().toString());
+
+                        Integer totalBonds = molecule.getBondCount();
+                        Integer ib = 0;
+                        while(ib<totalBonds){
+
+                            IBond b = molecule.getBond(ib);
+                            if( b.getOrder() == IBond.Order.UNSET ){
+                                //System.out.println(b.getOrder());
+                                b.setOrder(IBond.Order.SINGLE);
+
+                                //System.out.println(b.getOrder());
+
+                                //System.out.println(molecule.getBond(ib).getOrder());
+                            }
+
+                            ib++;
+                        }
+                        InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+
+                        molecule.setProperty("INCHI", gen.getInchi());
+
                     }
 
                     molecule.setProperty("SMILES", smilesGenerator.create(molecule) );
@@ -161,7 +189,7 @@ public class SDFReader implements Reader {
 
                     molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
 
-                    molecule = checkMolecule(molecule);
+
 
 
                     oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
@@ -169,7 +197,7 @@ public class SDFReader implements Reader {
 
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    //ex.printStackTrace();
                 }
                 count++;
 

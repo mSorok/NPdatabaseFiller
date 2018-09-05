@@ -4,10 +4,8 @@ package de.unijena.cheminf.npdatabasefiller;
 //import org.springframework.beans.factory.annotation.Autowired;
 import de.unijena.cheminf.npdatabasefiller.model.OriMolecule;
 import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
-import de.unijena.cheminf.npdatabasefiller.services.AtomContainerToOriMoleculeService;
+import de.unijena.cheminf.npdatabasefiller.services.*;
 import de.unijena.cheminf.npdatabasefiller.readers.IReaderService;
-import de.unijena.cheminf.npdatabasefiller.services.MoleculeUnificationService;
-import de.unijena.cheminf.npdatabasefiller.services.ZincCurationService;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -38,6 +36,14 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     MoleculeUnificationService moleculeUnificationService;
 
 
+    @Autowired
+    FragmentsCalculatorService fragmentsCalculatorService;
+
+
+    @Autowired
+    FragmentFrequencyCalculatorService fragmentFrequencyCalculatorService;
+
+
 
 
 
@@ -51,9 +57,9 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        System.out.println(locationFile);
+        //System.out.println(locationFile);
 
-
+        //readerService.iAmAlive();
         readerService.readLocationFile(locationFile);
 
         HashSet<String> sources =  readerService.ReadMolecularFilesAndInsertInDatabase();
@@ -68,6 +74,16 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
         // on molecules from OriMolecule table, launch the molecule unifier service
 
         moleculeUnificationService.doWork();
+
+
+        fragmentsCalculatorService.doWork();
+
+
+        fragmentFrequencyCalculatorService.doWork();
+
+
+
+
 
 
 

@@ -3,15 +3,17 @@ package de.unijena.cheminf.npdatabasefiller.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="Fragment")
-public class Fragment {
+@Table(name="fragment_with_sugar", indexes = {  @Index(name = "IDX1", columnList = "signature", unique = true) } )
+public class FragmentWithSugar {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Integer fragment_id;
 
+    @Column(length = 1200)
+    private String signature;
 
-    private String string_fragment;
+    private Integer height;
 
     private Float scoreNP;
 
@@ -25,12 +27,20 @@ public class Fragment {
         this.fragment_id = fragment_id;
     }
 
-    public String getString_fragment() {
-        return string_fragment;
+    public String getSignature() {
+        return signature;
     }
 
-    public void setString_fragment(String string_fragment) {
-        this.string_fragment = string_fragment;
+    public void setSignature(String atom_signature) {
+        this.signature = atom_signature;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
     }
 
     public Float getScoreNP() {
@@ -48,4 +58,6 @@ public class Fragment {
     public void setScoreSM(Float scoreSM) {
         this.scoreSM = scoreSM;
     }
+
+
 }

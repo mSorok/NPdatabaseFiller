@@ -1,5 +1,7 @@
 package de.unijena.cheminf.npdatabasefiller.misc;
 
+import org.openscience.cdk.Bond;
+import org.openscience.cdk.CDKConstants;
 import org.openscience.cdk.aromaticity.Aromaticity;
 import org.openscience.cdk.aromaticity.ElectronDonation;
 import org.openscience.cdk.aromaticity.Kekulization;
@@ -7,13 +9,12 @@ import org.openscience.cdk.atomtype.CDKAtomTypeMatcher;
 import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.graph.CycleFinder;
 import org.openscience.cdk.graph.Cycles;
-import org.openscience.cdk.interfaces.IAtom;
-import org.openscience.cdk.interfaces.IAtomContainer;
-import org.openscience.cdk.interfaces.IAtomType;
-import org.openscience.cdk.interfaces.IPseudoAtom;
+import org.openscience.cdk.interfaces.*;
 import org.openscience.cdk.tools.CDKHydrogenAdder;
 import org.openscience.cdk.tools.manipulator.AtomContainerManipulator;
 import org.openscience.cdk.tools.manipulator.AtomTypeManipulator;
+
+import java.util.function.IntBinaryOperator;
 
 public class MoleculeChecker {
 
@@ -110,11 +111,6 @@ public class MoleculeChecker {
         } catch ( IllegalArgumentException e){
             //System.out.println("Could not kekulize molecule "+ this.molecule.getID());
         }
-
-
-
-
-
 
         return this.molecule;
     }

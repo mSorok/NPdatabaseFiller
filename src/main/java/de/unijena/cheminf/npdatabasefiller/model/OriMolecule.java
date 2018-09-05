@@ -19,10 +19,10 @@ public class OriMolecule implements IMolecule{
     @Column(length = 20)
     private String source;
 
-    @Column(length=1000)
+    @Column(length=2000)
     private String inChi;
 
-    @Column(length=1200)
+    @Column(length=2000)
     private String smiles;
 
     private String status;
@@ -105,6 +105,29 @@ public class OriMolecule implements IMolecule{
 
     public void setAdditionDate(Date additionDate) {
         this.additionDate = additionDate;
+    }
+
+
+
+    public boolean isANP(){
+        if(this.status.equals("NP")){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isBIOGENIC(){
+        if(this.status.equals("BIOGENIC")){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isASM(){
+        if(this.status.equals("SM")){
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -19,7 +19,7 @@ import static java.lang.System.exit;
 @Service
 public class ReaderService implements IReaderService {
 
-    private ArrayList <Triplet< String, String, String>> listOfMolecularFiles ;
+    private HashSet <Triplet< String, String, String>> listOfMolecularFiles ;
     public ArrayList<IAtomContainer> totalMolecules;
 
 
@@ -27,17 +27,21 @@ public class ReaderService implements IReaderService {
     @Override
     public void readLocationFile(String fileName) {
 
-        this.listOfMolecularFiles = new ArrayList <Triplet< String, String, String>>();
-
+        this.listOfMolecularFiles = new HashSet <Triplet< String, String, String>>();
 
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+
+
 
             String line;
 
             while ((line = br.readLine()) != null) {
 
                 String [] tab = line.split("\t");
+
+
+
                 this.listOfMolecularFiles. add( new Triplet<String, String, String>(tab[0], tab[1], tab[2]) );
 
 

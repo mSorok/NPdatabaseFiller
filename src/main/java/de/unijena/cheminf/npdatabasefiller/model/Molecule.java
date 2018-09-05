@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 
 @Entity
-@Table(name="Molecule")
+@Table(name="molecule", indexes = {  @Index(name = "IDX1", columnList = "inChi"), @Index(name = "IDX2", columnList = "smiles") } )
 public class Molecule implements IMolecule{
 
 
@@ -16,11 +16,13 @@ public class Molecule implements IMolecule{
 
     private Float NPL_score;
 
-    @Column(length = 1000)
-    private String InChi;
+    @Column(length = 2000)
+    private String inChi;
 
-    @Column(length = 1000)
-    private String SMILES;
+    @Column(length = 2000)
+    private String smiles;
+
+    private boolean containsSugar;
 
 
 
@@ -52,19 +54,26 @@ public class Molecule implements IMolecule{
     }
 
     public String getInChi() {
-        return InChi;
+        return this.inChi;
     }
 
     public void setInChi(String inChi) {
-        InChi = inChi;
+        this.inChi = inChi;
     }
 
-    public String getSMILES() {
-        return SMILES;
+    public String getSmiles() {
+        return smiles;
     }
 
-    public void setSMILES(String SMILES) {
-        this.SMILES = SMILES;
+    public void setSmiles(String SMILES) {
+        this.smiles = SMILES;
     }
 
+    public boolean isContainsSugar() {
+        return containsSugar;
+    }
+
+    public void setContainsSugar(boolean containsSugar) {
+        this.containsSugar = containsSugar;
+    }
 }

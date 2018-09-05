@@ -10,6 +10,7 @@ import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.inchi.InChIGenerator;
 import org.openscience.cdk.inchi.InChIGeneratorFactory;
 import org.openscience.cdk.interfaces.IAtomContainer;
+import org.openscience.cdk.interfaces.IBond;
 import org.openscience.cdk.io.SDFWriter;
 import org.openscience.cdk.io.iterator.IteratingSDFReader;
 
@@ -139,7 +140,25 @@ public class MOLReader implements Reader {
 
                         molecule.setProperty("INCHI", gen.getInchi());
                     } catch (CDKException e) {
-                        e.printStackTrace();
+                        Integer totalBonds = molecule.getBondCount();
+                        Integer ib = 0;
+                        while(ib<totalBonds){
+
+                            IBond b = molecule.getBond(ib);
+                            if( b.getOrder() == IBond.Order.UNSET ){
+                                //System.out.println(b.getOrder());
+                                b.setOrder(IBond.Order.SINGLE);
+
+                                //System.out.println(b.getOrder());
+
+                                //System.out.println(molecule.getBond(ib).getOrder());
+                            }
+
+                            ib++;
+                        }
+                        InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+
+                        molecule.setProperty("INCHI", gen.getInchi());
                     }
 
                     molecule.setProperty("SMILES", smilesGenerator.create(molecule) );
