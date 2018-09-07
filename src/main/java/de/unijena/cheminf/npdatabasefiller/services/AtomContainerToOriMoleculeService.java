@@ -33,6 +33,8 @@ public class AtomContainerToOriMoleculeService implements AtomContainerToMolInst
 
         om.setStatus(ac.getProperty("MOL_STATUS"));
 
+        om.setAtom_number(ac.getAtomCount());
+
 
         return om;
     }

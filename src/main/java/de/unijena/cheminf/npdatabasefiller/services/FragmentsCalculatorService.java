@@ -1,7 +1,9 @@
 package de.unijena.cheminf.npdatabasefiller.services;
 
 
+import com.google.common.collect.Lists;
 import de.unijena.cheminf.npdatabasefiller.misc.BeanUtil;
+import de.unijena.cheminf.npdatabasefiller.misc.FragmentCreationTask;
 import de.unijena.cheminf.npdatabasefiller.misc.LinearSugars;
 import de.unijena.cheminf.npdatabasefiller.model.*;
 import de.unijena.cheminf.npdatabasefiller.misc.MoleculeConnectivityChecker;
@@ -20,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author mSorok
@@ -59,6 +64,97 @@ public class FragmentsCalculatorService {
 
 
 
+    public void doWork( Integer numberOfThreads){
+
+        int height = 2;
+        try {
+
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfThreads);
+
+
+        List<Molecule> allMolecules = mr.findAll();
+
+        List<List<Molecule>> moleculeListBatch = Lists.partition(allMolecules, 1000);
+
+        int taskcount = 0;
+
+
+        List<Callable<Object>> todo = new ArrayList<Callable<Object>>(moleculeListBatch.size());
+
+        System.out.println("Total number of tasks:" + moleculeListBatch.size());
+
+        for(List<Molecule> molBatch : moleculeListBatch){
+            FragmentCreationTask task = new FragmentCreationTask();
+            task.getMoleculesToCompute(molBatch);
+
+            taskcount++;
+
+            System.out.println("Task "+taskcount+" created");
+            task.taskid=taskcount;
+
+            todo.add(Executors.callable(task));
+
+            //executor.execute(task);
+
+            //System.out.println("Task "+taskcount+" executing");
+
+        }
+
+
+            executor.invokeAll(todo);
+
+            executor.shutdown();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        //find non-unique sugar fragment strings
+        // eliminate duplicates
+        // curate molecule_fragment_cpd for ids
+
+        for(Object[] obj : fr.findRedundantSignatures(height)){
+
+            String signature = obj[0].toString();
+            String stringListOfIds = obj[1].toString();
+
+            String [] listOfIds = stringListOfIds.split(" ");
+            ArrayList<Integer> intListOfIds = new ArrayList<>();
+            for(String id : listOfIds){ intListOfIds.add(Integer.parseInt(id)); }
+
+            int minId = Collections.min(intListOfIds);
+            for(int id:intListOfIds){
+                if(id != minId) {
+                    //delete by id
+                    fr.deleteById(id);
+                    //retrieve the cpd - modify - save
+                    List<MoleculeFragmentCpd> mfcList = cpdRepository.findByfragment_id(id);
+                    for(MoleculeFragmentCpd mfc : mfcList ){
+                        mfc.setFragment_id(minId);
+                        cpdRepository.save(mfc);
+                    }
+                }
+            }
+
+        }
+
+
+        //find non-unique sugar-free fragment strings
+        // eliminate duplicates
+        // curate molecule_fragment_cpd for ids
+
+
+        // curation of the DB for redundant fragments - take min ID for same fingerprint (and same height) - replace in in molecule_fragment_cpd - remove from fragments all fragments without cpd to a molecule
+
+
+
+    }
+
+
+
+
 
 
     public void doWork(){
@@ -88,9 +184,9 @@ public class FragmentsCalculatorService {
 
             for (String f : allFragments) {
 
-                FragmentWithSugar inDB = fr.findBySignatureAndHeight(f, height);
+                List<FragmentWithSugar> inDBlist = fr.findBySignatureAndHeight(f, height);
+                if(inDBlist.isEmpty()){
 
-                if (inDB == null) {
                     FragmentWithSugar newFragment = new FragmentWithSugar();
                     newFragment.setSignature(f);
                     newFragment.setHeight(height);
@@ -107,6 +203,7 @@ public class FragmentsCalculatorService {
 
 
                 } else {
+                    FragmentWithSugar inDB = inDBlist.get(0);
                     MoleculeFragmentCpd mfc = new MoleculeFragmentCpd();
                     mfc.setMol_id(molecule.getId());
                     mfc.setFragment_id(inDB.getFragment_id());
@@ -138,9 +235,8 @@ public class FragmentsCalculatorService {
 
                 for (String f : allFragments) {
 
-                    FragmentWithoutSugar inDB = fro.findBySignatureAndHeight(f, height);
-
-                    if (inDB == null) {
+                     List<FragmentWithoutSugar> inDBlist = fro.findBySignatureAndHeight(f, height);
+                    if(inDBlist.isEmpty()){
                         FragmentWithoutSugar newFragment = new FragmentWithoutSugar();
                         newFragment.setSignature(f);
                         newFragment.setHeight(height);
@@ -156,6 +252,7 @@ public class FragmentsCalculatorService {
                         cpdRepository.save(mfc);
 
                     } else {
+                        FragmentWithoutSugar inDB = inDBlist.get(0);
                         MoleculeFragmentCpd mfc = new MoleculeFragmentCpd();
                         mfc.setMol_id(molecule.getId());
                         mfc.setFragment_id(inDB.getFragment_id());
@@ -172,22 +269,22 @@ public class FragmentsCalculatorService {
 
             count++;
 
-            if(count == (int)Math.round( (double)allMolecules.size()/0.75 ) ){
+            if(count == (int)Math.round( (double)allMolecules.size()*0.75 ) ){
                 System.out.print(". 75% ....");
             }
-            else if(count == (int)Math.round( (double)allMolecules.size()/0.50 )) {
+            else if(count == (int)Math.round( (double)allMolecules.size()*0.50 )) {
                 System.out.print(". 50% ....");
             }
-            else if(count == (int)Math.round( (double)allMolecules.size()/0.25 )) {
+            else if(count == (int)Math.round( (double)allMolecules.size()*0.25 )) {
                 System.out.print(". 25% ....");
             }
 
-
+/*
             if(count%1000==0){
                 System.out.println(count+" processed");
             }
 
-
+*/
 
         }
         System.out.print(". 100%\n");
@@ -224,10 +321,6 @@ public class FragmentsCalculatorService {
         else{
             return null;
         }
-
-
-
-
     }
 
 
@@ -298,9 +391,6 @@ public class FragmentsCalculatorService {
         } catch (NullPointerException e) {
         } catch (CDKException e) {
         }
-
-
-
         return null;
 
     }

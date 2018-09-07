@@ -141,7 +141,7 @@ public class SDFReader implements Reader {
 
 
 
-            while (reader.hasNext() && count <= 500000) {
+            while (reader.hasNext() && count <= 1000) {
                 try {
                     IAtomContainer molecule = reader.next();
 
@@ -171,18 +171,13 @@ public class SDFReader implements Reader {
                                         //System.out.println(b.getOrder());
                                         b.setOrder(IBond.Order.SINGLE);
 
-                                        //System.out.println(b.getOrder());
-
-                                        //System.out.println(molecule.getBond(ib).getOrder());
                                     }
-
                                     ib++;
                                 }
                                 InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
                                 molecule.setProperty("INCHI", gen.getInchi());
                                 molecule.setProperty("INCHIKEY", gen.getInchiKey());
-
                             }
 
 

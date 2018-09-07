@@ -12,7 +12,8 @@ import javax.persistence.*;
 public class MoleculeFragmentCpd {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name="mfc_id", nullable = true)
     private Integer mfc_id;
 
 

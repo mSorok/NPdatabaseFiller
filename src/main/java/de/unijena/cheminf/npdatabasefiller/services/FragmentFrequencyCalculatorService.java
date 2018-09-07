@@ -58,9 +58,15 @@ public class FragmentFrequencyCalculatorService {
                 if( !Double.isNaN(scoreNPf) && !Double.isInfinite(scoreNPf) ){
                     sugarFragment.setScoreNP( scoreNPf);
                 }
+                else{
+                    sugarFragment.setScoreNP(0.0);
+                }
 
                 if( !Double.isNaN(scoreSMf) && !Double.isInfinite(scoreSMf)){
                     sugarFragment.setScoreSM( scoreSMf);
+                }
+                else{
+                    sugarFragment.setScoreSM(0.0);
                 }
 
                 sugarRepository.save(sugarFragment);
@@ -88,9 +94,15 @@ public class FragmentFrequencyCalculatorService {
                 if( !Double.isNaN(scoreNPf) && !Double.isInfinite(scoreNPf) ){
                     sugarFreeFragment.setScoreNP( scoreNPf);
                 }
+                else{
+                    sugarFreeFragment.setScoreNP(0.0);
+                }
 
                 if( !Double.isNaN(scoreSMf)  && !Double.isInfinite(scoreSMf )){
                     sugarFreeFragment.setScoreSM( scoreSMf);
+                }
+                else{
+                    sugarFreeFragment.setScoreSM(0.0);
                 }
 
                 sugarFreeRepository.save(sugarFreeFragment);

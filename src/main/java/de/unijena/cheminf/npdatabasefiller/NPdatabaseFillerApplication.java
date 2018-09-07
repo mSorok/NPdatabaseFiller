@@ -43,6 +43,8 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     @Autowired
     FragmentFrequencyCalculatorService fragmentFrequencyCalculatorService;
 
+    @Autowired NPLScorer nplScorer;
+
 
 
 
@@ -77,7 +79,9 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
         moleculeUnificationService.doWork();
 
 
-        fragmentsCalculatorService.doWork();
+
+
+        fragmentsCalculatorService.doWork(10);
 
 
 
@@ -89,20 +93,11 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
 
 
 
+        nplScorer.doWork();
 
 
 
-        // OLD
-        //readerService.readMolecularFiles();
 
-        //ArrayList<IAtomContainer> moleculesToUpload = readerService.returnCorrectMolecules();
-
-        //System.out.println("Molecules prepared. Starting uploading in the database");
-
-
-        //for(IAtomContainer ac : moleculesToUpload){
-           // oriMoleculeRepository.save(ac2om.createMolInstance(ac));
-        //}
         System.out.println("Happy exit");
 
 

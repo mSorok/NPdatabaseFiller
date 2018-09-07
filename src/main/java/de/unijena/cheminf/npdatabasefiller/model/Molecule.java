@@ -14,9 +14,13 @@ public class Molecule implements IMolecule{
 
     private Integer is_a_NP;
 
-    private Double NPL_score;
+    private Double npl_score;
 
-    private Double SML_score;
+    private Double npl_sugar_score;
+
+    private Double sml_score;
+
+    private Double sml_sugar_score;
 
     @Column(length = 1200)
     private String inchi;
@@ -52,20 +56,37 @@ public class Molecule implements IMolecule{
         this.is_a_NP = is_a_NP;
     }
 
-    public Double getNPL_score() {
-        return NPL_score;
+
+    public Double getNpl_score() {
+        return npl_score;
     }
 
-    public void setNPL_score(Double NPL_score) {
-        this.NPL_score = NPL_score;
+    public void setNpl_score(Double npl_score) {
+        this.npl_score = npl_score;
     }
 
-    public Double getSML_score() {
-        return SML_score;
+    public Double getNpl_sugar_score() {
+        return npl_sugar_score;
     }
 
-    public void setSML_score(Double SML_score) {
-        this.SML_score = SML_score;
+    public void setNpl_sugar_score(Double npl_sugar_score) {
+        this.npl_sugar_score = npl_sugar_score;
+    }
+
+    public Double getSml_score() {
+        return sml_score;
+    }
+
+    public void setSml_score(Double sml_score) {
+        this.sml_score = sml_score;
+    }
+
+    public Double getSml_sugar_score() {
+        return sml_sugar_score;
+    }
+
+    public void setSml_sugar_score(Double sml_sugar_score) {
+        this.sml_sugar_score = sml_sugar_score;
     }
 
     public String getInchi() {

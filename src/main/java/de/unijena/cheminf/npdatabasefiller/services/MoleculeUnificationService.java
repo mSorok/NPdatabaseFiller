@@ -55,6 +55,7 @@ public class MoleculeUnificationService {
                     Molecule newMol = new Molecule();
 
                     newMol.setInchikey(oms.get(0).getInchikey());
+                    newMol.setInchi(oms.get(0).getInchi());
                     newMol.setSmiles(oms.get(0).getSmiles());
                     newMol.setAtom_number(oms.get(0).getAtom_number());
                     if (isNP) {
@@ -68,6 +69,7 @@ public class MoleculeUnificationService {
 
                     for (OriMolecule om : oms) {
                         om.setUnique_mol_id(newMol.getId());
+                        omr.save(om);
                     }
                 }
 
@@ -98,6 +100,7 @@ public class MoleculeUnificationService {
                 Molecule newMol = new Molecule();
 
                 newMol.setInchikey(oms.get(0).getInchikey());
+                newMol.setInchi(oms.get(0).getInchi());
                 newMol.setSmiles(oms.get(0).getSmiles());
                 newMol.setAtom_number(oms.get(0).getAtom_number());
                 if (oms.get(0).isANP()) {
