@@ -132,7 +132,7 @@ public class SMILESReader implements Reader {
             System.out.println("SMILES reader creation");
 
 
-            while ((line = smilesReader.readLine()) != null  && count <= 1000) {
+            while ((line = smilesReader.readLine()) != null  && count <= 500000) {
                 String smiles_names = line;
                 if(!line.contains("smiles")) {
                     try {
