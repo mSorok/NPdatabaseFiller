@@ -1,4 +1,4 @@
-package de.unijena.cheminf.npdatabasefiller.molecule_curation;
+package de.unijena.cheminf.npdatabasefiller.misc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +7,16 @@ import java.util.Map;
 import org.openscience.cdk.graph.ConnectivityChecker;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.interfaces.IAtomContainerSet;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
 
 /**
  * Class to discard counter ions and other small disconnected fragments
  *
  * @author kalai
  */
+
+@Service
 public class MoleculeConnectivityChecker {
 
     public List<IAtomContainer> checkConnectivity(IAtomContainer molecule) {

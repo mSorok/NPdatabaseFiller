@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 
 @Entity
-@Table(name="molecule", indexes = {  @Index(name = "IDX1", columnList = "inChi"), @Index(name = "IDX2", columnList = "smiles") } )
+@Table(name="molecule", indexes = {  @Index(name = "IDX1", columnList = "inchikey", unique = true)} )
 public class Molecule implements IMolecule{
 
 
@@ -14,15 +14,22 @@ public class Molecule implements IMolecule{
 
     private Integer is_a_NP;
 
-    private Float NPL_score;
+    private Double NPL_score;
 
-    @Column(length = 2000)
-    private String inChi;
+    private Double SML_score;
 
-    @Column(length = 2000)
+    @Column(length = 1200)
+    private String inchi;
+
+    @Column(length=30)
+    private String inchikey;
+
+    @Column(length = 1200)
     private String smiles;
 
-    private boolean containsSugar;
+    private Integer atom_number;
+
+    private Integer containsSugar;
 
 
 
@@ -45,20 +52,36 @@ public class Molecule implements IMolecule{
         this.is_a_NP = is_a_NP;
     }
 
-    public Float getNPL_score() {
+    public Double getNPL_score() {
         return NPL_score;
     }
 
-    public void setNPL_score(Float NPL_score) {
+    public void setNPL_score(Double NPL_score) {
         this.NPL_score = NPL_score;
     }
 
-    public String getInChi() {
-        return this.inChi;
+    public Double getSML_score() {
+        return SML_score;
     }
 
-    public void setInChi(String inChi) {
-        this.inChi = inChi;
+    public void setSML_score(Double SML_score) {
+        this.SML_score = SML_score;
+    }
+
+    public String getInchi() {
+        return this.inchi;
+    }
+
+    public void setInchi(String inchi) {
+        this.inchi = inchi;
+    }
+
+    public String getInchikey() {
+        return inchikey;
+    }
+
+    public void setInchikey(String inchikey) {
+        this.inchikey = inchikey;
     }
 
     public String getSmiles() {
@@ -69,11 +92,23 @@ public class Molecule implements IMolecule{
         this.smiles = SMILES;
     }
 
-    public boolean isContainsSugar() {
+    public Integer isContainsSugar() {
         return containsSugar;
     }
 
-    public void setContainsSugar(boolean containsSugar) {
+    public void setContainsSugar(Integer containsSugar) {
         this.containsSugar = containsSugar;
+    }
+
+    public Integer getAtom_number() {
+        return atom_number;
+    }
+
+    public void setAtom_number(Integer atom_number) {
+        this.atom_number = atom_number;
+    }
+
+    public Integer getContainsSugar() {
+        return containsSugar;
     }
 }

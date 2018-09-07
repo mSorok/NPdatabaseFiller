@@ -12,7 +12,6 @@ public interface Reader {
 
     void readFileAndInsertInDB(File file, String source, String moleculeStatus);
 
-    IAtomContainer checkMolecule(IAtomContainer molecule);
 
 
     ArrayList<IAtomContainer> returnCorrectMolecules();

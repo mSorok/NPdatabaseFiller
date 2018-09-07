@@ -9,4 +9,7 @@ public interface FragmentWithoutSugarRepository  extends CrudRepository<Fragment
     List<FragmentWithoutSugar> findAll();
 
     FragmentWithoutSugar findBySignatureAndHeight(String atom_signature, Integer height);
+
+    List<FragmentWithoutSugar> findAllByHeight(Integer height);
+
 }

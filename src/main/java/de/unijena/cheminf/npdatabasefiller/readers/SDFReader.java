@@ -4,6 +4,7 @@ package de.unijena.cheminf.npdatabasefiller.readers;
 
 import de.unijena.cheminf.npdatabasefiller.misc.BeanUtil;
 import de.unijena.cheminf.npdatabasefiller.misc.MoleculeChecker;
+import de.unijena.cheminf.npdatabasefiller.model.Molecule;
 import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
 import de.unijena.cheminf.npdatabasefiller.services.AtomContainerToOriMoleculeService;
 import org.javatuples.Pair;
@@ -41,12 +42,15 @@ public class SDFReader implements Reader {
 
     AtomContainerToOriMoleculeService ac2om;
 
+    MoleculeChecker moleculeChecker;
+
 
     public SDFReader(){
 
         this.listOfMolecules = new ArrayList<IAtomContainer>();
-         oriMoleculeRepository = BeanUtil.getBean(OriMoleculeRepository.class);
-         ac2om = BeanUtil.getBean(AtomContainerToOriMoleculeService.class);
+        oriMoleculeRepository = BeanUtil.getBean(OriMoleculeRepository.class);
+        ac2om = BeanUtil.getBean(AtomContainerToOriMoleculeService.class);
+        moleculeChecker = BeanUtil.getBean(MoleculeChecker.class);
 
     }
 
@@ -87,14 +91,12 @@ public class SDFReader implements Reader {
                     molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
 
 
+                    molecule = moleculeChecker.checkMolecule(molecule);
 
-                    molecule = checkMolecule(molecule);
+                    if (molecule != null) {
+                        listOfMolecules.add(molecule);
+                    }
 
-
-                    //System.out.println(molecule.getProperties());
-
-
-                    listOfMolecules.add(molecule);
 
 
                 } catch (Exception ex) {
@@ -138,61 +140,63 @@ public class SDFReader implements Reader {
 
 
 
-            //TODO to CHANGE!
-            while (reader.hasNext() && count <= 100000) {
+
+            while (reader.hasNext() && count <= 500000) {
                 try {
                     IAtomContainer molecule = reader.next();
 
-                    molecule.setProperty("MOL_NUMBER_IN_FILE",  Integer.toString(count) );
+                    molecule.setProperty("MOL_NUMBER_IN_FILE", Integer.toString(count));
                     molecule.setProperty("FILE_ORIGIN", file.getName().replace(".sdf", ""));
 
                     molecule.setProperty("DATABASE", source);
                     molecule.setProperty("MOL_STATUS", moleculeStatus);
 
-                    molecule = checkMolecule(molecule);
+                    molecule = moleculeChecker.checkMolecule(molecule);
 
-                    try {
-                        InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+                        if (molecule != null) {
 
-                        molecule.setProperty("INCHI", gen.getInchi());
-                    } catch (CDKException e) {
+                            try {
+                                InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
-                        Integer totalBonds = molecule.getBondCount();
-                        Integer ib = 0;
-                        while(ib<totalBonds){
+                                molecule.setProperty("INCHI", gen.getInchi());
+                                molecule.setProperty("INCHIKEY", gen.getInchiKey());
+                            } catch (CDKException e) {
 
-                            IBond b = molecule.getBond(ib);
-                            if( b.getOrder() == IBond.Order.UNSET ){
-                                //System.out.println(b.getOrder());
-                                b.setOrder(IBond.Order.SINGLE);
+                                Integer totalBonds = molecule.getBondCount();
+                                Integer ib = 0;
+                                while (ib < totalBonds) {
 
-                                //System.out.println(b.getOrder());
+                                    IBond b = molecule.getBond(ib);
+                                    if (b.getOrder() == IBond.Order.UNSET) {
+                                        //System.out.println(b.getOrder());
+                                        b.setOrder(IBond.Order.SINGLE);
 
-                                //System.out.println(molecule.getBond(ib).getOrder());
+                                        //System.out.println(b.getOrder());
+
+                                        //System.out.println(molecule.getBond(ib).getOrder());
+                                    }
+
+                                    ib++;
+                                }
+                                InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+
+                                molecule.setProperty("INCHI", gen.getInchi());
+                                molecule.setProperty("INCHIKEY", gen.getInchiKey());
+
                             }
 
-                            ib++;
+
+                            molecule.setProperty("SMILES", smilesGenerator.create(molecule));
+
+
+                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                            LocalDate localDate = LocalDate.now();
+
+                            molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
+
+
+                            oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
                         }
-                        InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
-
-                        molecule.setProperty("INCHI", gen.getInchi());
-
-                    }
-
-                    molecule.setProperty("SMILES", smilesGenerator.create(molecule) );
-
-
-
-
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-                    LocalDate localDate = LocalDate.now();
-
-                    molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
-
-
-
-
-                    oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
 
 
 
@@ -218,15 +222,7 @@ public class SDFReader implements Reader {
 
     }
 
-    @Override
-    public IAtomContainer checkMolecule(IAtomContainer molecule) {
 
-        MoleculeChecker mc = new MoleculeChecker(molecule);
-        molecule = mc.checkMolecule();
-
-
-        return molecule;
-    }
 
     @Override
     public ArrayList<IAtomContainer> returnCorrectMolecules() {

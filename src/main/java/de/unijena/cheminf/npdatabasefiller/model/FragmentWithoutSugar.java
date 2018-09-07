@@ -3,21 +3,21 @@ package de.unijena.cheminf.npdatabasefiller.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="fragment_without_sugar", indexes = {  @Index(name = "IDX1", columnList = "signature", unique = true) } )
+@Table(name="fragment_without_sugar", indexes = {  @Index(name = "IDX1", columnList = "signature"), @Index(name="IDX2", columnList = "height, signature") } )
 public class FragmentWithoutSugar {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Integer fragment_id;
 
-    @Column(length = 1200)
+    @Column(length = 300)
     private String signature;
 
     private Integer height;
 
-    private Float scoreNP;
+    private Double scoreNP;
 
-    private Float scoreSM;
+    private Double scoreSM;
 
     public Integer getFragment_id() {
         return fragment_id;
@@ -43,19 +43,19 @@ public class FragmentWithoutSugar {
         this.height = height;
     }
 
-    public Float getScoreNP() {
+    public Double getScoreNP() {
         return scoreNP;
     }
 
-    public void setScoreNP(Float scoreNP) {
+    public void setScoreNP(Double scoreNP) {
         this.scoreNP = scoreNP;
     }
 
-    public Float getScoreSM() {
+    public Double getScoreSM() {
         return scoreSM;
     }
 
-    public void setScoreSM(Float scoreSM) {
+    public void setScoreSM(Double scoreSM) {
         this.scoreSM = scoreSM;
     }
 }

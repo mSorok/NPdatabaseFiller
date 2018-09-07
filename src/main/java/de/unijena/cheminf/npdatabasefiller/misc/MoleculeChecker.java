@@ -13,106 +13,147 @@ import org.openscience.cdk.interfaces.*;
 import org.openscience.cdk.tools.CDKHydrogenAdder;
 import org.openscience.cdk.tools.manipulator.AtomContainerManipulator;
 import org.openscience.cdk.tools.manipulator.AtomTypeManipulator;
+import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.function.IntBinaryOperator;
 
+@Service
 public class MoleculeChecker {
 
-    IAtomContainer molecule;
 
-    public MoleculeChecker(IAtomContainer molecule){
-        this.molecule = molecule;
-
-    }
+    private final String[] check = {"C", "H", "N", "O", "P", "S", "Cl", "F", "As", "Se", "Br", "I", "B"};
+    private final HashSet<String> symbols2Check = new HashSet<String>(Arrays.asList(check));
 
 
-    public IAtomContainer checkMolecule(){
+    MoleculeConnectivityChecker mcc;
 
 
-        // check ID
 
-        if(this.molecule.getID()=="" || this.molecule.getID()==null){
-            for(Object p :  this.molecule.getProperties().keySet() ) {
+    public IAtomContainer checkMolecule(IAtomContainer molecule){
 
-                if ( p.toString().toLowerCase().contains("id") ) {
-                    this.molecule.setID(molecule.getProperty(p.toString()) );
+        mcc = BeanUtil.getBean(MoleculeConnectivityChecker.class);
+
+        if(!containsStrangeElements(molecule)) {
+
+            /**
+             * Checking for connectivity and selecting the biggest component
+             */
+
+            List<IAtomContainer> listAC = mcc.checkConnectivity(molecule);
+            if( listAC.size()>1 ){
+                IAtomContainer biggestComponent = listAC.get(0);
+                for(IAtomContainer partac : listAC){
+                    if(partac.getAtomCount()>biggestComponent.getAtomCount()){
+                        biggestComponent = partac;
+                    }
+                }
+                molecule = biggestComponent;
+            }
+
+
+            // check ID
+
+            if (molecule.getID() == "" || molecule.getID() == null) {
+                for (Object p : molecule.getProperties().keySet()) {
+
+                    if (p.toString().toLowerCase().contains("id")) {
+                        molecule.setID(molecule.getProperty(p.toString()));
+
+                    }
 
                 }
+                if (molecule.getID() == "" || molecule.getID() == null) {
+                    molecule.setID(molecule.getProperty("MOL_NUMBER_IN_FILE"));
+                    //this.molecule.setProperty("ID", this.molecule.getProperty("MOL_NUMBER_IN_FILE"));
+                }
+
 
             }
-            if(this.molecule.getID()=="" || this.molecule.getID()==null) {
-                this.molecule.setID(this.molecule.getProperty("MOL_NUMBER_IN_FILE"));
-                //this.molecule.setProperty("ID", this.molecule.getProperty("MOL_NUMBER_IN_FILE"));
+
+
+            ElectronDonation model = ElectronDonation.cdk();
+            CycleFinder cycles = Cycles.cdkAromaticSet();
+            Aromaticity aromaticity = new Aromaticity(model, cycles);
+
+
+
+
+
+            //Homogenize pseudo atoms - all pseudo atoms (PA) as a "*"
+            for (int u = 1; u < molecule.getAtomCount(); u++) {
+                if (molecule.getAtom(u) instanceof IPseudoAtom) {
+
+                    molecule.getAtom(u).setSymbol("*");
+                    molecule.getAtom(u).setAtomTypeName("X");
+                    ((IPseudoAtom) molecule.getAtom(u)).setLabel("*");
+
+                }
             }
 
 
-        }
-
-
-
-
-        ElectronDonation model       = ElectronDonation.cdk();
-        CycleFinder cycles      = Cycles.cdkAromaticSet();
-        Aromaticity aromaticity = new Aromaticity(model, cycles);
-
-
-
-        //Adding aromaticity to molecules when needed
-/*        try {
-            AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(this.molecule);
-            AtomContainerManipulator.percieveAtomTypesAndConfigureUnsetProperties(this.molecule);
-            aromaticity.apply(this.molecule);
-        } catch (CDKException e) {
-            e.printStackTrace();
-        }
-*/
-
-        //Homogenize pseudo atoms - all pseudo atoms (PA) as a "*"
-        for(int u=1; u< this.molecule.getAtomCount(); u++){
-            if(this.molecule.getAtom(u) instanceof IPseudoAtom){
-
-                this.molecule.getAtom(u).setSymbol("*");
-                this.molecule.getAtom(u).setAtomTypeName("X");
-                ((IPseudoAtom) this.molecule.getAtom(u)).setLabel("*");
-
+            // Addition of implicit hydrogens & atom typer
+            CDKAtomTypeMatcher matcher = CDKAtomTypeMatcher.getInstance(molecule.getBuilder());
+            for (int j = 0; j < molecule.getAtomCount(); j++) {
+                IAtom atom = molecule.getAtom(j);
+                IAtomType type = null;
+                try {
+                    type = matcher.findMatchingAtomType(molecule, atom);
+                } catch (CDKException e) {
+                    e.printStackTrace();
+                }
+                AtomTypeManipulator.configure(atom, type);
             }
-        }
+            CDKHydrogenAdder adder = CDKHydrogenAdder.getInstance(molecule.getBuilder());
 
-
-        // Addition of implicit hydrogens & atom typer
-        CDKAtomTypeMatcher matcher = CDKAtomTypeMatcher.getInstance(this.molecule.getBuilder());
-        for (int j=0; j< this.molecule.getAtomCount();j++) {
-            IAtom atom = this.molecule.getAtom(j);
-            IAtomType type = null;
             try {
-                type = matcher.findMatchingAtomType(this.molecule, atom);
+                adder.addImplicitHydrogens(molecule);
             } catch (CDKException e) {
                 e.printStackTrace();
             }
-            AtomTypeManipulator.configure(atom, type);
+
+            AtomContainerManipulator.convertImplicitToExplicitHydrogens(molecule);
+
+
+            //Adding aromaticity to molecules when needed
+            try {
+                AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(molecule);
+                AtomContainerManipulator.percieveAtomTypesAndConfigureUnsetProperties(molecule);
+                aromaticity.apply(molecule);
+            } catch (CDKException e) {
+                e.printStackTrace();
+            }
+
+
+            //Fixing molecular bonds
+            try {
+                Kekulization.kekulize(molecule);
+
+            } catch (CDKException e1) {
+                //e1.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                //System.out.println("Could not kekulize molecule "+ this.molecule.getID());
+            }
+
+            return molecule;
         }
-        CDKHydrogenAdder adder = CDKHydrogenAdder.getInstance(this.molecule.getBuilder());
+        return null;
+    }
 
-        try {
-            adder.addImplicitHydrogens(this.molecule);
-        } catch (CDKException e) {
-            e.printStackTrace();
+
+
+    private boolean containsStrangeElements(IAtomContainer molecule) {
+        if(molecule.getAtomCount()>0) {
+            for (IAtom atom : molecule.atoms()) {
+                if (!symbols2Check.contains(atom.getSymbol())) {
+                    System.out.println("contains strange");
+                    return true;
+                }
+            }
         }
-
-        AtomContainerManipulator.convertImplicitToExplicitHydrogens(this.molecule);
-
-
-        //Fixing molecular bonds
-        try {
-            Kekulization.kekulize(this.molecule);
-
-        } catch (CDKException e1) {
-            //e1.printStackTrace();
-        } catch ( IllegalArgumentException e){
-            //System.out.println("Could not kekulize molecule "+ this.molecule.getID());
-        }
-
-        return this.molecule;
+        return false;
     }
 
 

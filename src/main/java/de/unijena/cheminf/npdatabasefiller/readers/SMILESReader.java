@@ -30,12 +30,16 @@ public class SMILESReader implements Reader {
 
     private LineNumberReader smilesReader;
 
+    MoleculeChecker moleculeChecker;
+
 
 
     public SMILESReader(){
         this.listOfMolecules = new ArrayList<IAtomContainer>();
         oriMoleculeRepository = BeanUtil.getBean(OriMoleculeRepository.class);
         ac2om = BeanUtil.getBean(AtomContainerToOriMoleculeService.class);
+        moleculeChecker = BeanUtil.getBean(MoleculeChecker.class);
+
     }
 
     OriMoleculeRepository oriMoleculeRepository;
@@ -78,9 +82,14 @@ public class SMILESReader implements Reader {
                             molecule.setProperty("MOL_NUMBER_IN_FILE", Integer.toString(count));
                             molecule.setProperty("ID", splitted[1]);
                             molecule.setID(splitted[1]);
+                            molecule = moleculeChecker.checkMolecule(molecule);
+
+                            if (molecule != null){
 
 
-                            listOfMolecules.add(molecule);
+                                listOfMolecules.add(molecule);
+
+                            }
                         } catch (InvalidSmilesException e) {
                             e.printStackTrace();
                             smilesReader.skip(count - 1);
@@ -123,7 +132,7 @@ public class SMILESReader implements Reader {
             System.out.println("SMILES reader creation");
 
 
-            while ((line = smilesReader.readLine()) != null) {
+            while ((line = smilesReader.readLine()) != null  && count <= 500000) {
                 String smiles_names = line;
                 if(!line.contains("smiles")) {
                     try {
@@ -143,44 +152,48 @@ public class SMILESReader implements Reader {
 
                             molecule.setProperty("DATABASE", source);
                             molecule.setProperty("MOL_STATUS", moleculeStatus);
-                            try {
-                                InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+                            molecule = moleculeChecker.checkMolecule(molecule);
 
-                                molecule.setProperty("INCHI", gen.getInchi());
-                            } catch (CDKException e) {
-                                Integer totalBonds = molecule.getBondCount();
-                                Integer ib = 0;
-                                while(ib<totalBonds){
+                            if (molecule != null){
+                                try {
+                                    InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
-                                    IBond b = molecule.getBond(ib);
-                                    if( b.getOrder() == IBond.Order.UNSET ){
-                                        //System.out.println(b.getOrder());
-                                        b.setOrder(IBond.Order.SINGLE);
+                                    molecule.setProperty("INCHI", gen.getInchi());
+                                    molecule.setProperty("INCHIKEY", gen.getInchiKey());
+                                } catch (CDKException e) {
+                                    Integer totalBonds = molecule.getBondCount();
+                                    Integer ib = 0;
+                                    while (ib < totalBonds) {
 
-                                        //System.out.println(b.getOrder());
+                                        IBond b = molecule.getBond(ib);
+                                        if (b.getOrder() == IBond.Order.UNSET) {
+                                            //System.out.println(b.getOrder());
+                                            b.setOrder(IBond.Order.SINGLE);
 
-                                        //System.out.println(molecule.getBond(ib).getOrder());
+                                            //System.out.println(b.getOrder());
+
+                                            //System.out.println(molecule.getBond(ib).getOrder());
+                                        }
+
+                                        ib++;
                                     }
+                                    InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
-                                    ib++;
+                                    molecule.setProperty("INCHI", gen.getInchi());
+                                    molecule.setProperty("INCHIKEY", gen.getInchiKey());
                                 }
-                                InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
-                                molecule.setProperty("INCHI", gen.getInchi());
+                                molecule.setProperty("SMILES", smilesGenerator.create(molecule));
+
+
+                                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                                LocalDate localDate = LocalDate.now();
+
+                                molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
+
+
+                                oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
                             }
-
-                            molecule.setProperty("SMILES", smilesGenerator.create(molecule) );
-
-
-                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-                            LocalDate localDate = LocalDate.now();
-
-                            molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
-
-                            molecule = checkMolecule(molecule);
-
-
-                            oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
 
 
 
@@ -215,13 +228,7 @@ public class SMILESReader implements Reader {
 
     }
 
-    @Override
-    public IAtomContainer checkMolecule(IAtomContainer molecule) {
 
-        MoleculeChecker mc = new MoleculeChecker(molecule);
-        molecule = mc.checkMolecule();
-        return molecule;
-    }
 
     @Override
     public ArrayList<IAtomContainer> returnCorrectMolecules() {

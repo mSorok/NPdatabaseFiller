@@ -5,7 +5,7 @@ import java.util.Date;
 
 
 @Entity
-@Table(name="OriMolecule" , indexes = {  @Index(name = "IDX1", columnList = "inChi"), @Index(name = "IDX2", columnList = "source"), @Index(name = "IDX3", columnList = "status") } )
+@Table(name="OriMolecule" , indexes = {  @Index(name = "IDXI", columnList = "inchikey"  ), @Index(name = "IDX2", columnList = "source"), @Index(name = "IDX3", columnList = "status") } )
 public class OriMolecule implements IMolecule{
 
 
@@ -19,11 +19,16 @@ public class OriMolecule implements IMolecule{
     @Column(length = 20)
     private String source;
 
-    @Column(length=2000)
-    private String inChi;
+    @Column(length=1200)
+    private String inchi;
 
-    @Column(length=2000)
+    @Column(length=30)
+    private String inchikey;
+
+    @Column(length=1200)
     private String smiles;
+
+    private Integer atom_number;
 
     private String status;
 
@@ -67,12 +72,20 @@ public class OriMolecule implements IMolecule{
         this.source = source;
     }
 
-    public String getInChi() {
-        return this.inChi;
+    public String getInchi() {
+        return this.inchi;
     }
 
-    public void setInChi(String inChi) {
-        this.inChi = inChi;
+    public void setInchi(String inchi) {
+        this.inchi = inchi;
+    }
+
+    public String getInchikey() {
+        return inchikey;
+    }
+
+    public void setInchikey(String inchikey) {
+        this.inchikey = inchikey;
     }
 
     public String getSmiles() {
@@ -107,7 +120,13 @@ public class OriMolecule implements IMolecule{
         this.additionDate = additionDate;
     }
 
+    public Integer getAtom_number() {
+        return atom_number;
+    }
 
+    public void setAtom_number(Integer atom_number) {
+        this.atom_number = atom_number;
+    }
 
     public boolean isANP(){
         if(this.status.equals("NP")){
@@ -132,7 +151,7 @@ public class OriMolecule implements IMolecule{
 
     @Override
     public String toString(){
-        return getOri_mol_id()+"  "+getInChi()+"  "+getStatus();
+        return getOri_mol_id()+"  "+getInchi()+"  "+getStatus();
 
     }
 

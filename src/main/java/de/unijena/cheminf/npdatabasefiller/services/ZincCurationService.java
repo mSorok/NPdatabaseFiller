@@ -6,6 +6,7 @@ import de.unijena.cheminf.npdatabasefiller.model.OriMolecule;
 import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Hashtable;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 
 @Service
+@Transactional
 public class ZincCurationService {
 
     @Autowired
@@ -22,12 +24,47 @@ public class ZincCurationService {
 
 
     public void doWork(){
+        System.out.println("ZINC curation started ");
+
+        //eliminating NPs first
+        for(Object obj : omr.findNPInchikeyInZinc()) {
+            try{
+                String uinchi = obj.toString();
+                omr.deleteAllByInchikeyAndStatusAndSource(uinchi, "SM", "ZINC");
+                omr.deleteAllByInchikeyAndStatusAndSource(uinchi, "BIOGENIC", "ZINC");
+            }
+            catch(NullPointerException e){
+                System.out.println("Failed to catch one ZINC Inchikey!");
+            }
+
+        }
+
+
+
+        //eliminating biogenic next
+        for(Object obj : omr.findBIOGENICInchikeyInZinc()) {
+            try{
+                String uinchi = obj.toString();
+                omr.deleteAllByInchikeyAndStatusAndSource(uinchi, "SM", "ZINC");
+            }
+            catch(NullPointerException e){
+                System.out.println("Failed to catch one ZINC Inchikey!");
+            }
+
+        }
+
+
+        System.out.println("ZINC curation finished");
+    }
+
+
+    public void doWork_by_all_in_chi(){
 
         System.out.println("ZINC curation started ");
 
 
 
-        for(Object[] obj : omr.findRedundantInChiInZinc()) {
+        for(Object[] obj : omr.findRedundantInchikeyInZinc()) {
 
 
             try{
@@ -36,7 +73,7 @@ public class ZincCurationService {
                 String uinchi = obj[0].toString();
 
 
-                List<OriMolecule> oms = omr.findByInChiAndSource(uinchi, "ZINC");
+                List<OriMolecule> oms = omr.findByInchikeyAndSource(uinchi, "ZINC");
 
                 OriMolecule omToSave = null;
 
@@ -81,7 +118,7 @@ public class ZincCurationService {
                 }
             }
             catch(NullPointerException e){
-                System.out.println("Failed to catch one ZINC InChi!");
+                System.out.println("Failed to catch one ZINC Inchikey!");
             }
         }
 
@@ -105,10 +142,10 @@ public class ZincCurationService {
         System.out.println("ZINC curation started (long)");
 
 
-        // removing the NPs from ALL by InChi
+        // removing the NPs from ALL by Inchikey
         for(OriMolecule omNP : omr.findBySourceAndStatus("ZINC", "NP") ){
 
-            for(OriMolecule candidate : omr.findByInChi( omNP.getInChi() )){
+            for(OriMolecule candidate : omr.findAllByInchikey( omNP.getInchikey() )){
                 if( candidate.getId() != omNP.getId() ){
                     omr.delete(candidate);
                 }
@@ -117,10 +154,10 @@ public class ZincCurationService {
         }
 
 
-        // removing the NPs from ALL by InChi
+        // removing the NPs from ALL by Inchikey
         for(OriMolecule omBIO : omr.findBySourceAndStatus("ZINC", "BIOGENIC") ){
 
-            for(OriMolecule candidate : omr.findByInChi( omBIO.getInChi() )){
+            for(OriMolecule candidate : omr.findAllByInchikey( omBIO.getInchikey() )){
                 if( candidate.getId() != omBIO.getId() ){
                     omr.delete(candidate);
                 }

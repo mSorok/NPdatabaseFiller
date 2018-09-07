@@ -41,11 +41,16 @@ public class MOLReader implements Reader {
 
     AtomContainerToOriMoleculeService ac2om;
 
+    MoleculeChecker moleculeChecker;
+
+
 
     public MOLReader(){
         this.listOfMolecules = new ArrayList<IAtomContainer>();
         oriMoleculeRepository = BeanUtil.getBean(OriMoleculeRepository.class);
         ac2om = BeanUtil.getBean(AtomContainerToOriMoleculeService.class);
+        moleculeChecker = BeanUtil.getBean(MoleculeChecker.class);
+
     }
 
 
@@ -81,13 +86,11 @@ public class MOLReader implements Reader {
 
                     molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
 
-                    molecule = checkMolecule(molecule);
+                    molecule = moleculeChecker.checkMolecule(molecule);
+                    if(molecule != null) {
 
-
-                    System.out.println(molecule.getProperties());
-
-
-                    listOfMolecules.add(molecule);
+                        listOfMolecules.add(molecule);
+                    }
 
 
                 } catch (Exception ex) {
@@ -130,48 +133,58 @@ public class MOLReader implements Reader {
                 try {
                     IAtomContainer molecule = reader.next();
 
-                    molecule.setProperty("MOL_NUMBER_IN_FILE",  Integer.toString(count) );
+                    molecule.setProperty("MOL_NUMBER_IN_FILE", Integer.toString(count));
                     molecule.setProperty("FILE_ORIGIN", file.getName().replace(".sdf", ""));
 
                     molecule.setProperty("DATABASE", source);
                     molecule.setProperty("MOL_STATUS", moleculeStatus);
-                    try {
-                        InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
-                        molecule.setProperty("INCHI", gen.getInchi());
-                    } catch (CDKException e) {
-                        Integer totalBonds = molecule.getBondCount();
-                        Integer ib = 0;
-                        while(ib<totalBonds){
+                    molecule = moleculeChecker.checkMolecule(molecule);
+                    if(molecule != null) {
 
-                            IBond b = molecule.getBond(ib);
-                            if( b.getOrder() == IBond.Order.UNSET ){
-                                //System.out.println(b.getOrder());
-                                b.setOrder(IBond.Order.SINGLE);
 
-                                //System.out.println(b.getOrder());
+                        try {
+                            InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
-                                //System.out.println(molecule.getBond(ib).getOrder());
+                            molecule.setProperty("INCHI", gen.getInchi());
+
+                            molecule.setProperty("INCHIKEY", gen.getInchiKey());
+
+
+
+                        } catch (CDKException e) {
+                            Integer totalBonds = molecule.getBondCount();
+                            Integer ib = 0;
+                            while (ib < totalBonds) {
+
+                                IBond b = molecule.getBond(ib);
+                                if (b.getOrder() == IBond.Order.UNSET) {
+                                    //System.out.println(b.getOrder());
+                                    b.setOrder(IBond.Order.SINGLE);
+
+                                    //System.out.println(b.getOrder());
+
+                                    //System.out.println(molecule.getBond(ib).getOrder());
+                                }
+
+                                ib++;
                             }
+                            InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
-                            ib++;
+                            molecule.setProperty("INCHI", gen.getInchi());
+                            molecule.setProperty("INCHIKEY", gen.getInchiKey());
                         }
-                        InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
 
-                        molecule.setProperty("INCHI", gen.getInchi());
+                        molecule.setProperty("SMILES", smilesGenerator.create(molecule));
+
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                        LocalDate localDate = LocalDate.now();
+
+                        molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
+
+
+                        oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
                     }
-
-                    molecule.setProperty("SMILES", smilesGenerator.create(molecule) );
-
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-                    LocalDate localDate = LocalDate.now();
-
-                    molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
-
-                    molecule = checkMolecule(molecule);
-
-
-                    oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
 
 
                 } catch (Exception ex) {
@@ -190,12 +203,6 @@ public class MOLReader implements Reader {
     }
 
 
-    @Override
-    public IAtomContainer checkMolecule(IAtomContainer molecule) {
-        MoleculeChecker mc = new MoleculeChecker(molecule);
-        molecule = mc.checkMolecule();
-        return molecule;
-    }
 
     @Override
     public ArrayList<IAtomContainer> returnCorrectMolecules() {

@@ -22,7 +22,7 @@ public class MoleculeFragmentCpd {
 
     private Integer height;
 
-    private boolean contains_sugar;
+    private Integer computed_with_sugar;
 
 
 
@@ -59,11 +59,11 @@ public class MoleculeFragmentCpd {
         this.height = height;
     }
 
-    public boolean contains_sugar() {
-        return contains_sugar;
+    public Integer isComputed_with_sugar() {
+        return computed_with_sugar;
     }
 
-    public void setContains_sugar(boolean contains_sugar) {
-        this.contains_sugar = contains_sugar;
+    public void setComputed_with_sugar(Integer computed_with_sugar) {
+        this.computed_with_sugar = computed_with_sugar;
     }
 }

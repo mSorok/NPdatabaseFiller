@@ -24,90 +24,100 @@ public class MoleculeUnificationService {
     MoleculeRepository mr;
 
     /**
-     * Redundancy checker by InChi
+     * Redundancy checker by Inchikey
      */
     public void doWork(){
-        System.out.println("I'm ready to do redundancy elimination work! (very long)");
+        System.out.println("Starting redundancy elimination work!");
 
-        //for each inchi that has more than one occurence in the database
+        //for each Inchikey that has more than one occurence in the database
         // create unique Molecule entity
 
-        //TODO remove entities with less than 6 atoms
-        //TODO CurateStrangeElements
 
-        for(Object[] obj : omr.findRedundantInChi()) {
+
+        for(Object[] obj : omr.findRedundantInchikey()) {
 
             try{
 
-            String uinchi = obj[0].toString();
-            List<OriMolecule> oms = omr.findByInChi(uinchi);
-            boolean isNP = false;
-            boolean isSM = false;
-            for (OriMolecule om : oms) {
-                if (om.isANP()) {
-                    isNP = true;
-                }
-                if (om.isASM()) {
-                    isSM = true;
-                }
-            }
-
-            if (isNP || isSM) {
-                Molecule newMol = new Molecule();
-
-                newMol.setInChi(oms.get(0).getInChi());
-                newMol.setSmiles(oms.get(0).getSmiles());
-                if (isNP) {
-                    newMol.setIs_a_NP(1);
-
-                } else if (isSM) {
-                    newMol.setIs_a_NP(0);
-                }
-                newMol = mr.save(newMol);
-
-
+                String uinchi = obj[0].toString();
+                List<OriMolecule> oms = omr.findAllByInchikey(uinchi);
+                boolean isNP = false;
+                boolean isSM = false;
                 for (OriMolecule om : oms) {
-                    om.setUnique_mol_id(newMol.getId());
+                    if (om.isANP()) {
+                        isNP = true;
+                    }
+                    if (om.isASM()) {
+                        isSM = true;
+                    }
                 }
+
+                if (isNP || isSM) {
+                    Molecule newMol = new Molecule();
+
+                    newMol.setInchikey(oms.get(0).getInchikey());
+                    newMol.setSmiles(oms.get(0).getSmiles());
+                    newMol.setAtom_number(oms.get(0).getAtom_number());
+                    if (isNP) {
+                        newMol.setIs_a_NP(1);
+
+                    } else if (isSM) {
+                        newMol.setIs_a_NP(0);
+                    }
+                    newMol = mr.save(newMol);
+
+
+                    for (OriMolecule om : oms) {
+                        om.setUnique_mol_id(newMol.getId());
+                    }
+                }
+
+            }catch(NullPointerException e) {
+                System.out.println("Problem in retrieving redundant Inchikey");
             }
 
-        }catch(NullPointerException e) {
-                System.out.println("Problem in retrieving redundant InChi");
-        }
-
 
 
 
         }
-        System.out.println("Finished checking redundancy - creating Unique molecule objects for others");
+        System.out.println("Finished checking redundancy - creating Unique molecule objects for non-redundant molecules");
 
 
-        //create Molecule entities for UniqueInChis also:
-        for(Object[] obj : omr.findUniqueInChi()) {
+        //create Molecule entities for UniqueInchikeykeys also:
+
+
+
+
+
+        for(Object[] obj : omr.findUniqueInchikey()) {
             try {
 
                 String uinchi = obj[0].toString();
-                List<OriMolecule> oms = omr.findByInChi(uinchi);
+
+                List<OriMolecule> oms = omr.findAllByInchikey(uinchi);
 
                 Molecule newMol = new Molecule();
 
-                newMol.setInChi(oms.get(0).getInChi());
+                newMol.setInchikey(oms.get(0).getInchikey());
                 newMol.setSmiles(oms.get(0).getSmiles());
-                if (oms.get(0).getStatus() == "NP") {
+                newMol.setAtom_number(oms.get(0).getAtom_number());
+                if (oms.get(0).isANP()) {
                     newMol.setIs_a_NP(1);
-                } else if (oms.get(0).getStatus() != "SM") {
+                } else if (oms.get(0).isASM()) {
                     newMol.setIs_a_NP(0);
                 }
 
                 newMol = mr.save(newMol);
-
-
                 oms.get(0).setUnique_mol_id(newMol.getId());
+                omr.save(oms.get(0));
+
+
+
             }catch(NullPointerException e){
-                System.out.println("Problem in retrieving unique InChi");
+                System.out.println("Problem in retrieving unique Inchikey");
             }
 
         }
+
         System.out.println("Done");
 
 

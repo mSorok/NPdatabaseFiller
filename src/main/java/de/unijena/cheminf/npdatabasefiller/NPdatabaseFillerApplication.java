@@ -57,16 +57,17 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        //System.out.println(locationFile);
 
-        //readerService.iAmAlive();
+
+
+        System.out.println(locationFile);
+        readerService.iAmAlive();
         readerService.readLocationFile(locationFile);
 
         HashSet<String> sources =  readerService.ReadMolecularFilesAndInsertInDatabase();
 
 
         if(sources.contains("ZINC")){
-            //run a ZINC curation service on database
             zincCurationService.doWork();
         }
 
@@ -77,6 +78,8 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
 
 
         fragmentsCalculatorService.doWork();
+
+
 
 
         fragmentFrequencyCalculatorService.doWork();

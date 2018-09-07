@@ -14,8 +14,10 @@ public class AtomContainerToMoleculeService implements AtomContainerToMolInstanc
     public Molecule createMolInstance(IAtomContainer ac) {
         Molecule m = new Molecule();
 
-        m.setInChi(ac.getProperty("INCHI"));
+        m.setInchi(ac.getProperty("INCHI"));
+        m.setInchikey(ac.getProperty("INCHIKEY"));
         m.setSmiles(ac.getProperty("SMILES"));
+        m.setAtom_number(ac.getAtomCount());
 
         return m;
     }

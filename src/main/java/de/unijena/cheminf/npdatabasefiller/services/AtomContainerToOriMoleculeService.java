@@ -25,7 +25,9 @@ public class AtomContainerToOriMoleculeService implements AtomContainerToMolInst
         om.setOri_mol_id( ac.getID() );
         om.setSource(ac.getProperty("DATABASE"));
 
-        om.setInChi(ac.getProperty("INCHI"));
+        om.setInchi(ac.getProperty("INCHI"));
+
+        om.setInchikey(ac.getProperty("INCHIKEY"));
 
         om.setSmiles(ac.getProperty("SMILES"));
 
