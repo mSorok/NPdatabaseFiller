@@ -26,7 +26,7 @@
         <docker.image.prefix>npls</docker.image.prefix>
     </properties>
 
-<!--    <repositories>
+    <repositories>
         <repository>
             <id>mvnrepository</id>
             <url>http://repo1.maven.org/maven2</url>
@@ -37,7 +37,7 @@
             <url>http://jni-inchi.sourceforge.net/m2repo</url>
         </repository>
     </repositories>
--->
+
 
     <dependencies>
 
@@ -121,6 +121,7 @@
             <version>${cdk.version}</version>
         </dependency>
 
+
         <dependency>
             <groupId>org.openscience.cdk</groupId>
             <artifactId>cdk-render</artifactId>
@@ -175,6 +176,8 @@
             <version>${cdk.version}</version>
             <type>jar</type>
         </dependency>
+
+
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
@@ -194,6 +197,13 @@
             <artifactId>javatuples</artifactId>
             <version>1.2</version>
             <scope>compile</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>net.sf.jni-inchi</groupId>
+            <artifactId>jni-inchi</artifactId>
+            <version>0.7</version>
         </dependency>
 
 

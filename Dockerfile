@@ -16,6 +16,10 @@ RUN apk update \
 && apk add --no-cache curl \
 && apk add --no-cache openjdk8-jre
 
+#RUN mkdir /root/.jnati/repo/jniinchi/1.03_1/LINUX-AMD64
+
+#COPY ./inchi/libJniInchi-1.03_1-LINUX-AMD64.so /root/.jnati/repo/jniinchi/1.03_1/LINUX-AMD64/
+#COPY ./inchi/MANIFEST.xml /root/.jnati/repo/jniinchi/1.03_1/LINUX-AMD64/
 
 
 EXPOSE 8080
