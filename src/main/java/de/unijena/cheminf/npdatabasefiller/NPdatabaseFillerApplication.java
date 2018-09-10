@@ -1,9 +1,6 @@
 package de.unijena.cheminf.npdatabasefiller;
 
-//import de.unijena.cheminf.npdatabasefiller.services.IOriMoleculeService;
-//import org.springframework.beans.factory.annotation.Autowired;
-import de.unijena.cheminf.npdatabasefiller.model.OriMolecule;
-import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
+
 import de.unijena.cheminf.npdatabasefiller.services.*;
 import de.unijena.cheminf.npdatabasefiller.readers.IReaderService;
 import org.openscience.cdk.interfaces.IAtomContainer;
@@ -22,7 +19,7 @@ import static java.lang.System.exit;
 @SpringBootApplication(scanBasePackages={"de.unijena.cheminf.npdatabasefiller"})
 public class NPdatabaseFillerApplication implements CommandLineRunner {
 
-    String locationFile = Paths.get("").toAbsolutePath().toString() + "/molecular_file_locations.txt";
+    //String locationFile = Paths.get("").toAbsolutePath().toString() + "/molecular_file_locations.txt";
 
 
     @Autowired
@@ -59,49 +56,47 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        if (args.length > 0) {
+            String locationFile = args[0];
+
+
+            System.out.println(locationFile);
+            readerService.iAmAlive();
+            readerService.readLocationFile(locationFile);
+
+
+            HashSet<String> sources = readerService.ReadMolecularFilesAndInsertInDatabase();
+
+
+            if (sources.contains("ZINC")) {
+                zincCurationService.doWork();
+            }
+
+
+            // on molecules from OriMolecule table, launch the molecule unifier service
+
+            moleculeUnificationService.doWork();
+
+
+            fragmentsCalculatorService.doWork(10);
+
+
+            fragmentFrequencyCalculatorService.doWork();
+
+
+            nplScorer.doWork();
+
+
+            System.out.println("Happy exit");
 
 
 
-        System.out.println(locationFile);
-        readerService.iAmAlive();
-        readerService.readLocationFile(locationFile);
-
-        HashSet<String> sources =  readerService.ReadMolecularFilesAndInsertInDatabase();
-
-
-        if(sources.contains("ZINC")){
-            zincCurationService.doWork();
+        }
+        else{
+            System.out.println("Please, specify the path to file containing directions to molecular files!");
         }
 
-
-        // on molecules from OriMolecule table, launch the molecule unifier service
-
-        moleculeUnificationService.doWork();
-
-
-
-
-        fragmentsCalculatorService.doWork(10);
-
-
-
-
-        fragmentFrequencyCalculatorService.doWork();
-
-
-
-
-
-
-        nplScorer.doWork();
-
-
-
-
-        System.out.println("Happy exit");
-
-
-        exit(0);
+        //exit(0);
 
     }
 }
