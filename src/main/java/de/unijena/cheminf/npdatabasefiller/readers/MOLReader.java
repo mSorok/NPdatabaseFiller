@@ -4,6 +4,7 @@ package de.unijena.cheminf.npdatabasefiller.readers;
 import de.unijena.cheminf.npdatabasefiller.misc.BeanUtil;
 import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
 import de.unijena.cheminf.npdatabasefiller.services.AtomContainerToOriMoleculeService;
+import net.sf.jniinchi.INCHI_OPTION;
 import org.javatuples.Pair;
 import org.openscience.cdk.DefaultChemObjectBuilder;
 import org.openscience.cdk.exception.CDKException;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -113,10 +115,9 @@ public class MOLReader implements Reader {
     @Override
     public void readFileAndInsertInDB(File file, String source, String moleculeStatus) {
         this.file = file;
-        int count = 1;
 
-        SmilesGenerator smilesGenerator = new SmilesGenerator(SmiFlavor.Absolute |
-                SmiFlavor.UseAromaticSymbols);
+
+        SmilesGenerator smilesGenerator = new SmilesGenerator(SmiFlavor.Unique );
 
         System.out.println("\n\n Working on the MOL file: "+this.file.getName() + "\n\n");
 
@@ -133,8 +134,10 @@ public class MOLReader implements Reader {
                 try {
                     IAtomContainer molecule = reader.next();
 
-                    molecule.setProperty("MOL_NUMBER_IN_FILE", Integer.toString(count));
-                    molecule.setProperty("FILE_ORIGIN", file.getName().replace(".sdf", ""));
+                    molecule.setProperty("MOL_NUMBER_IN_FILE", Integer.toString(1));
+                    molecule.setProperty("FILE_ORIGIN", file.getName().replace(".mol", ""));
+
+                    molecule.setID(file.getName().replace(".mol", ""));
 
                     molecule.setProperty("DATABASE", source);
                     molecule.setProperty("MOL_STATUS", moleculeStatus);
@@ -144,7 +147,11 @@ public class MOLReader implements Reader {
 
 
                         try {
-                            InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+                            List options = new ArrayList();
+                            options.add(INCHI_OPTION.SNon);
+                            options.add(INCHI_OPTION.ChiralFlagOFF);
+                            options.add(INCHI_OPTION.AuxNone);
+                            InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule, options );
 
                             molecule.setProperty("INCHI", gen.getInchi());
 
@@ -159,17 +166,17 @@ public class MOLReader implements Reader {
 
                                 IBond b = molecule.getBond(ib);
                                 if (b.getOrder() == IBond.Order.UNSET) {
-                                    //System.out.println(b.getOrder());
                                     b.setOrder(IBond.Order.SINGLE);
 
-                                    //System.out.println(b.getOrder());
-
-                                    //System.out.println(molecule.getBond(ib).getOrder());
                                 }
 
                                 ib++;
                             }
-                            InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+                            List options = new ArrayList();
+                            options.add(INCHI_OPTION.SNon);
+                            options.add(INCHI_OPTION.ChiralFlagOFF);
+                            options.add(INCHI_OPTION.AuxNone);
+                            InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule, options );
 
                             molecule.setProperty("INCHI", gen.getInchi());
                             molecule.setProperty("INCHIKEY", gen.getInchiKey());
@@ -190,7 +197,7 @@ public class MOLReader implements Reader {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-                count++;
+
             }
 
 

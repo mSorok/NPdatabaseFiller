@@ -7,6 +7,7 @@ import de.unijena.cheminf.npdatabasefiller.misc.MoleculeChecker;
 import de.unijena.cheminf.npdatabasefiller.model.Molecule;
 import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
 import de.unijena.cheminf.npdatabasefiller.services.AtomContainerToOriMoleculeService;
+import net.sf.jniinchi.INCHI_OPTION;
 import org.javatuples.Pair;
 import org.openscience.cdk.CDKConstants;
 import org.openscience.cdk.DefaultChemObjectBuilder;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -122,11 +124,9 @@ public class SDFReader implements Reader {
 
     @Override
     public void readFileAndInsertInDB(File file, String source, String moleculeStatus) {
-        ac2om.iAmAlive();;
 
 
-        SmilesGenerator smilesGenerator = new SmilesGenerator(SmiFlavor.Absolute |
-                SmiFlavor.UseAromaticSymbols);
+        SmilesGenerator smilesGenerator = new SmilesGenerator(SmiFlavor.Unique); //Unique - canonical SMILES string, different atom ordering produces the same* SMILES. No isotope or stereochemistry encoded.
 
 
         this.file = file;
@@ -141,7 +141,7 @@ public class SDFReader implements Reader {
 
 
 
-            while (reader.hasNext() && count <= 500000) {
+            while (reader.hasNext() && count <= 600000) {
                 try {
                     IAtomContainer molecule = reader.next();
 
@@ -156,7 +156,12 @@ public class SDFReader implements Reader {
                         if (molecule != null) {
 
                             try {
-                                InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+
+                                List options = new ArrayList();
+                                options.add(INCHI_OPTION.SNon);
+                                options.add(INCHI_OPTION.ChiralFlagOFF);
+                                options.add(INCHI_OPTION.AuxNone);
+                                InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule, options );
 
                                 molecule.setProperty("INCHI", gen.getInchi());
                                 molecule.setProperty("INCHIKEY", gen.getInchiKey());
@@ -174,7 +179,11 @@ public class SDFReader implements Reader {
                                     }
                                     ib++;
                                 }
-                                InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+                                List options = new ArrayList();
+                                options.add(INCHI_OPTION.SNon);
+                                options.add(INCHI_OPTION.ChiralFlagOFF);
+                                options.add(INCHI_OPTION.AuxNone);
+                                InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule, options );
 
                                 molecule.setProperty("INCHI", gen.getInchi());
                                 molecule.setProperty("INCHIKEY", gen.getInchiKey());
@@ -199,6 +208,7 @@ public class SDFReader implements Reader {
                     //ex.printStackTrace();
                 }
                 count++;
+                //System.out.println(count);
 
                 if(count%50000==0){
                     System.out.println("Molecules read: "+count);

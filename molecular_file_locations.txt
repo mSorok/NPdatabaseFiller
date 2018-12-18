@@ -1,7 +1,8 @@
-/nplsmol/MolFilesCollection/ZINC/npZincDL/13062018.natural-products.sdf	ZINC	NP
-/nplsmol/MolFilesCollection/ZINC/12.07.2018.biogenic.smi	ZINC	BIOGENIC
-/nplsmol/MolFilesCollection/ZINC/zincALL/zinc-all-for-sale.sdf	ZINC	SM
-/nplsmol/MolFilesCollection/Supernatural_vII/supernatural.SDF	SUPERNATURAL	NP
-/nplsmol/MolFilesCollection/ChEBI/ChEBI_NP.sdf	CHEBI	NP
-/nplsmol/MolFilesCollection/ChEMBL/ChEMBL_NP.sdf	CHEMBL	NP
-/nplsmol/MolFilesCollection/PubChem/PubChem_tested_NP.sdf	PUBCHEM	NP
+/nplsmol/MolFilesCollection/13062018.natural-products.sdf	ZINC	NP
+/nplsmol/MolFilesCollection/12.07.2018.biogenic.smi	ZINC	BIOGENIC
+/nplsmol/MolFilesCollection/zinc-all-for-sale.sdf	ZINC	SM
+/nplsmol/MolFilesCollection/supernatural.SDF	SUPERNATURAL	NP
+/nplsmol/MolFilesCollection/ChEBI_NP.sdf	CHEBI	NP
+/nplsmol/MolFilesCollection/ChEMBL_NP.sdf	CHEMBL	NP
+/nplsmol/MolFilesCollection/PubChem_tested_NP.sdf	PUBCHEM	NP
+/nplsmol/MolFilesCollection/totalNP_nr.sdf	OLD2012	NP

@@ -17,6 +17,10 @@ public interface MoleculeRepository extends CrudRepository<Molecule, Integer> {
     @Query(nativeQuery = true, value = "SELECT COUNT(DISTINCT(mol_id)) FROM molecule WHERE mol_id= :mol_id")
     Integer findAtomCountByMolId(@Param("mol_id") Integer mol_id);
 
+    @Query(nativeQuery = true, value = "SELECT * FROM molecule INNER JOIN ori_molecule ON(mol_id=unique_mol_id) WHERE source='OLD2012'")
+    List<Molecule> findMoleculesFromOLD2012();
+
+    Molecule findByInchikey(String inchikey);
 
 
 }

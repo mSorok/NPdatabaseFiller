@@ -8,7 +8,9 @@ import javax.persistence.*;
         indexes = {
         @Index(name = "IDX1", columnList = "mol_id, fragment_id" ) ,
                 @Index(name="IDX2", columnList ="mol_id"),
-                @Index(name="IDX3", columnList="fragment_id")  })
+                @Index(name="IDX3", columnList="fragment_id"),
+        @Index(name="IDX4", columnList = "height"),
+        @Index(name="IDX5", columnList = "computed_with_sugar")})
 public class MoleculeFragmentCpd {
 
     @Id
@@ -22,6 +24,8 @@ public class MoleculeFragmentCpd {
     private Integer fragment_id;
 
     private Integer height;
+
+    private Integer nbfragmentinmolecule;
 
     private Integer computed_with_sugar;
 
@@ -66,5 +70,17 @@ public class MoleculeFragmentCpd {
 
     public void setComputed_with_sugar(Integer computed_with_sugar) {
         this.computed_with_sugar = computed_with_sugar;
+    }
+
+    public Integer getNbfragmentinmolecule() {
+        return nbfragmentinmolecule;
+    }
+
+    public void setNbfragmentinmolecule(Integer nbfragmentinmolecule) {
+        this.nbfragmentinmolecule = nbfragmentinmolecule;
+    }
+
+    public Integer getComputed_with_sugar() {
+        return computed_with_sugar;
     }
 }

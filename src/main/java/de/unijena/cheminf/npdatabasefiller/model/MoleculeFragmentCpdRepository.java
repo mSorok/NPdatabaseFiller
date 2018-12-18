@@ -11,11 +11,29 @@ public interface MoleculeFragmentCpdRepository  extends CrudRepository<MoleculeF
     @Query(nativeQuery = true, value = "SELECT COUNT(DISTINCT mol_id) FROM molecule_fragment_cpd WHERE fragment_id= :fragment_id AND height= :height AND computed_with_sugar= :computed_with_sugar  ")
     List<Object[]> countDistinctMoleculesByFragmentIdAndHeightAndAndComputedWithSugar(@Param("fragment_id") Integer fragment_id, @Param("height") Integer height, @Param("computed_with_sugar") Integer computed_with_sugar);
 
+
+
+
+
     @Query(nativeQuery = true, value = "SELECT COUNT(DISTINCT mol_id) FROM molecule_fragment_cpd INNER JOIN molecule USING(mol_id) WHERE fragment_id= :fragment_id AND height= :height AND computed_with_sugar= :computed_with_sugar AND is_a_np=1 ")
     List<Object[]> countDistinctNPMoleculesByFragmentIdAndHeightAndAndComputedWithSugar(@Param("fragment_id") Integer fragment_id, @Param("height") Integer height, @Param("computed_with_sugar") Integer computed_with_sugar);
 
+
+    @Query(nativeQuery = true, value="SELECT SUM(nbfragmentinmolecule) FROM molecule_fragment_cpd INNER JOIN molecule USING(mol_id) WHERE fragment_id= :fragment_id AND height= :height AND computed_with_sugar= :computed_with_sugar AND is_a_np=1")
+    List<Object[]> countTotalOccurenciesInNPMoleculesByFragmentIdAndHeightAndComputedWithSugar(@Param("fragment_id") Integer fragment_id, @Param("height") Integer height, @Param("computed_with_sugar") Integer computed_with_sugar);
+
+
+
+
     @Query(nativeQuery = true, value = "SELECT COUNT(DISTINCT mol_id) FROM molecule_fragment_cpd INNER JOIN molecule USING(mol_id) WHERE fragment_id= :fragment_id AND height= :height AND computed_with_sugar= :computed_with_sugar AND is_a_np=0 ")
     List<Object[]> countDistinctSMMoleculesByFragmentIdAndHeightAndAndComputedWithSugar(@Param("fragment_id") Integer fragment_id, @Param("height") Integer height, @Param("computed_with_sugar") Integer computed_with_sugar);
+
+
+    @Query(nativeQuery = true, value="SELECT SUM(nbfragmentinmolecule) FROM molecule_fragment_cpd INNER JOIN molecule USING(mol_id) WHERE fragment_id= :fragment_id AND height= :height AND computed_with_sugar= :computed_with_sugar AND is_a_np=0")
+    List<Object[]> countTotalOccurenciesInSMMoleculesByFragmentIdAndHeightAndComputedWithSugar(@Param("fragment_id") Integer fragment_id, @Param("height") Integer height, @Param("computed_with_sugar") Integer computed_with_sugar);
+
+
+
 
 
     @Query(nativeQuery = true, value="SELECT COUNT(DISTINCT mol_id) FROM molecule_fragment_cpd WHERE height= :height AND computed_with_sugar=1")
@@ -34,12 +52,12 @@ public interface MoleculeFragmentCpdRepository  extends CrudRepository<MoleculeF
     List<MoleculeFragmentCpd> findByfragment_id(@Param("fragment_id")Integer fragment_id);
 
 
-    @Query(nativeQuery = true, value="SELECT f.fragment_id, f.scorenp, f.scoresm " +
+    @Query(nativeQuery = true, value="SELECT f.fragment_id, cpd.nbfragmentinmolecule, f.scorenp, f.scoresm " +
             "FROM molecule_fragment_cpd cpd INNER JOIN fragment_with_sugar f USING(fragment_id) " +
             "WHERE cpd.computed_with_sugar=1 AND f.height= :height AND cpd.mol_id= :mol_id")
     List<Object[]> findAllSugarFragmentsByMolid(@Param("mol_id") Integer mol_id, @Param("height") Integer height );
 
-    @Query(nativeQuery = true, value="SELECT f.fragment_id, f.scorenp, f.scoresm " +
+    @Query(nativeQuery = true, value="SELECT f.fragment_id, cpd.nbfragmentinmolecule, f.scorenp, f.scoresm " +
             "FROM molecule_fragment_cpd cpd INNER JOIN fragment_without_sugar f USING(fragment_id) " +
             "WHERE cpd.computed_with_sugar=0 AND f.height= :height AND cpd.mol_id= :mol_id")
     List<Object[]> findAllSugarfreeFragmentsByMolid(@Param("mol_id") Integer mol_id, @Param("height") Integer height );

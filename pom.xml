@@ -70,10 +70,6 @@
 
 
 
-
-
-
-
         <dependency>
             <groupId>org.openscience.cdk</groupId>
             <artifactId>cdk-core</artifactId>
@@ -201,9 +197,9 @@
 
 
         <dependency>
-            <groupId>net.sf.jni-inchi</groupId>
-            <artifactId>jni-inchi</artifactId>
-            <version>0.7</version>
+            <groupId>com.github.dpaukov</groupId>
+            <artifactId>combinatoricslib3</artifactId>
+            <version>3.3.0</version>
         </dependency>
 
 

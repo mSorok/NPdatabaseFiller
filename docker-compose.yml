@@ -18,7 +18,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    command: "/nplsmol/molecular_file_locations.txt"
+    command: "nplsmol/molecular_file_locations.txt 100"
     volumes:
       - /Users/maria/Projects/NPdatabaseFiller:/nplsmol
 

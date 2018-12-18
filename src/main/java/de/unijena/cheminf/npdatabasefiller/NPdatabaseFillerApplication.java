@@ -3,7 +3,13 @@ package de.unijena.cheminf.npdatabasefiller;
 
 import de.unijena.cheminf.npdatabasefiller.services.*;
 import de.unijena.cheminf.npdatabasefiller.readers.IReaderService;
+import org.openscience.cdk.exception.InvalidSmilesException;
 import org.openscience.cdk.interfaces.IAtomContainer;
+import org.openscience.cdk.interfaces.IRingSet;
+import org.openscience.cdk.ringsearch.AllRingsFinder;
+import org.openscience.cdk.silent.SilentChemObjectBuilder;
+import org.openscience.cdk.smiles.SmilesParser;
+import org.openscience.cdk.tools.manipulator.MolecularFormulaManipulator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +19,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import static java.lang.System.exit;
 
@@ -40,6 +47,9 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     @Autowired
     FragmentFrequencyCalculatorService fragmentFrequencyCalculatorService;
 
+    @Autowired
+    DependingFragmentFrequencyCalculatorService dependingFragmentFrequencyCalculatorService;
+
     @Autowired NPLScorer nplScorer;
 
 
@@ -50,22 +60,34 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     public static void main(String[] args){
 
 
+
         SpringApplication.run(NPdatabaseFillerApplication.class, args);
     }
 
     @Override
     public void run(String... args) throws Exception {
 
+        System.out.println("Code version from 18 december 2018");
+
         if (args.length > 0) {
+
+
             String locationFile = args[0];
 
 
+
+
             System.out.println(locationFile);
-            readerService.iAmAlive();
+
+
+
             readerService.readLocationFile(locationFile);
 
 
-            HashSet<String> sources = readerService.ReadMolecularFilesAndInsertInDatabase();
+            HashSet<String> sources = readerService.readMolecularFilesAndInsertInDatabase();
+
+
+
 
 
             if (sources.contains("ZINC")) {
@@ -73,22 +95,44 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
             }
 
 
-            // on molecules from OriMolecule table, launch the molecule unifier service
+
 
             moleculeUnificationService.doWork();
 
 
-            fragmentsCalculatorService.doWork(10);
+
+
+
+            fragmentsCalculatorService.doWork();
+
 
 
             fragmentFrequencyCalculatorService.doWork();
 
 
-            nplScorer.doWork();
+
+            //dependingFragmentFrequencyCalculatorService.doWork(true);
+            //dependingFragmentFrequencyCalculatorService.doWork(false);
+
+
+
+            nplScorer.doWork(true);
+            nplScorer.doWork(false);
+
+            //nplScorer.coputeScoreForCoFrequencies(true);
+            //nplScorer.coputeScoreForCoFrequencies(false);
+
+
+
+
+
+            moleculeUnificationService.computeAdditionalMolecularFeatures();
+
+
+
 
 
             System.out.println("Happy exit");
-
 
 
         }
@@ -96,7 +140,7 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
             System.out.println("Please, specify the path to file containing directions to molecular files!");
         }
 
-        //exit(0);
+        exit(0);
 
     }
 }

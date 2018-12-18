@@ -138,7 +138,7 @@ public class ReaderService implements IReaderService {
     }
 
     @Override
-    public HashSet<String> ReadMolecularFilesAndInsertInDatabase(){
+    public HashSet<String> readMolecularFilesAndInsertInDatabase(){
 
         HashSet<String> totalDatabases = new HashSet<String>();
 

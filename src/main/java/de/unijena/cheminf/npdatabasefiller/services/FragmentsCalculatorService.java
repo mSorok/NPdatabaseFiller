@@ -61,20 +61,53 @@ public class FragmentsCalculatorService {
 
     private final LinearSugars linearSugarChains = LinearSugars.getInstance();
 
+    private final int height = 2;
 
 
 
-    public void doWork( Integer numberOfThreads){
 
-        int height = 2;
-        try {
+    public void doWork( ){
+
+
+
+
+        System.out.println("Start computing fragments");
+
+
+        List<FragmentWithSugar> uniqueFragmentsWithSugar = computeUniqueFragments(1);
+        List<FragmentWithoutSugar> uniqueFragmentsWithoutSugar = computeUniqueFragments(0);
+
+
+
+        // cleaning up the database
+        fr.deleteAll();
+        fro.deleteAll();
+        cpdRepository.deleteAll();
+
+
+        //saving computed fragments
+        fr.saveAll(uniqueFragmentsWithSugar);
+        fro.saveAll(uniqueFragmentsWithoutSugar);
+
+
+        // computing the correspondencies between fragments and molecules with numbers of fragment occurence in each molecule
+        computeCpd(1);
+        computeCpd(0);
+
+
+        System.out.println("Done calculating fragments");
+
+
+
+
+/*
+
+
+try {
 
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfThreads);
 
-
-        List<Molecule> allMolecules = mr.findAll();
-
-        List<List<Molecule>> moleculeListBatch = Lists.partition(allMolecules, 1000);
+        List<List<Molecule>> moleculeListBatch = Lists.partition(allMolecules, 500);
 
         int taskcount = 0;
 
@@ -147,7 +180,7 @@ public class FragmentsCalculatorService {
 
 
         // curation of the DB for redundant fragments - take min ID for same fingerprint (and same height) - replace in in molecule_fragment_cpd - remove from fragments all fragments without cpd to a molecule
-
+*/
 
 
     }
@@ -155,6 +188,7 @@ public class FragmentsCalculatorService {
 
 
 
+/*
 
 
     public void doWork(){
@@ -176,9 +210,9 @@ public class FragmentsCalculatorService {
             IAtomContainer ac = atomContainerToMoleculeService.createAtomContainer(molecule);
 
 
-            /**
-             * Filling for molecules without sugar removal
-             */
+
+            //Filling for molecules without sugar removal
+
             int height = 2;
             List<String> allFragments = generateAtomSignatures(ac, height);
 
@@ -219,9 +253,11 @@ public class FragmentsCalculatorService {
 
 
 
-            /**
+            */
+/**
              * Filling for molecules after sugar removal
-             */
+             *//*
+
             IAtomContainer sugarlessMolecule = removeSugars(ac);
             if (sugarlessMolecule == null) {
                 molecule.setContainsSugar(0);
@@ -233,37 +269,37 @@ public class FragmentsCalculatorService {
 
                 if(allFragments != null){
 
-                for (String f : allFragments) {
+                    for (String f : allFragments) {
 
-                     List<FragmentWithoutSugar> inDBlist = fro.findBySignatureAndHeight(f, height);
-                    if(inDBlist.isEmpty()){
-                        FragmentWithoutSugar newFragment = new FragmentWithoutSugar();
-                        newFragment.setSignature(f);
-                        newFragment.setHeight(height);
+                        List<FragmentWithoutSugar> inDBlist = fro.findBySignatureAndHeight(f, height);
+                        if(inDBlist.isEmpty()){
+                            FragmentWithoutSugar newFragment = new FragmentWithoutSugar();
+                            newFragment.setSignature(f);
+                            newFragment.setHeight(height);
 
-                        newFragment = fro.save(newFragment);
+                            newFragment = fro.save(newFragment);
 
-                        MoleculeFragmentCpd mfc = new MoleculeFragmentCpd();
-                        mfc.setMol_id(molecule.getId());
-                        mfc.setFragment_id(newFragment.getFragment_id());
-                        mfc.setHeight(height);
-                        mfc.setComputed_with_sugar(0);
+                            MoleculeFragmentCpd mfc = new MoleculeFragmentCpd();
+                            mfc.setMol_id(molecule.getId());
+                            mfc.setFragment_id(newFragment.getFragment_id());
+                            mfc.setHeight(height);
+                            mfc.setComputed_with_sugar(0);
 
-                        cpdRepository.save(mfc);
+                            cpdRepository.save(mfc);
 
-                    } else {
-                        FragmentWithoutSugar inDB = inDBlist.get(0);
-                        MoleculeFragmentCpd mfc = new MoleculeFragmentCpd();
-                        mfc.setMol_id(molecule.getId());
-                        mfc.setFragment_id(inDB.getFragment_id());
-                        mfc.setHeight(height);
-                        mfc.setComputed_with_sugar(0);
-                        cpdRepository.save(mfc);
+                        } else {
+                            FragmentWithoutSugar inDB = inDBlist.get(0);
+                            MoleculeFragmentCpd mfc = new MoleculeFragmentCpd();
+                            mfc.setMol_id(molecule.getId());
+                            mfc.setFragment_id(inDB.getFragment_id());
+                            mfc.setHeight(height);
+                            mfc.setComputed_with_sugar(0);
+                            cpdRepository.save(mfc);
+                        }
+
+
                     }
-
-
                 }
-            }
 
             }
 
@@ -279,19 +315,21 @@ public class FragmentsCalculatorService {
                 System.out.print(". 25% ....");
             }
 
+*/
 /*
             if(count%1000==0){
                 System.out.println(count+" processed");
             }
 
-*/
+*//*
+
 
         }
         System.out.print(". 100%\n");
         System.out.println("All fragments calculated and injected in database!");
 
     }
-
+*/
 
 
 
@@ -306,7 +344,7 @@ public class FragmentsCalculatorService {
 
         //atomContainer = calculateAromaticity(atomContainer);
 
-        if(!atomContainer.isEmpty()) {
+        if( atomContainer != null  && !atomContainer.isEmpty()) {
 
             for (IAtom atom : atomContainer.atoms()) {
                 try {
@@ -317,6 +355,46 @@ public class FragmentsCalculatorService {
                 }
             }
             return atomSignatures;
+        }
+        else{
+            return null;
+        }
+    }
+
+
+    public Hashtable<String, Integer> generateCountedAtomSignatures(IAtomContainer atomContainer, Integer height) {
+
+        List<String> atomSignatures = new ArrayList<>();
+
+        Hashtable<String, Integer> countedAtomSignatures = new Hashtable<>();
+
+
+
+        //atomContainer = calculateAromaticity(atomContainer);
+
+        if(atomContainer !=null && !atomContainer.isEmpty()) {
+
+            for (IAtom atom : atomContainer.atoms()) {
+                try {
+                    AtomSignature atomSignature = new AtomSignature(atom, height, atomContainer);
+                    atomSignatures.add(atomSignature.toCanonicalString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            for(String signature : atomSignatures){
+                if(countedAtomSignatures.containsKey(signature)){
+                    countedAtomSignatures.put(signature, countedAtomSignatures.get(signature)+1);
+                }
+                else{
+                    countedAtomSignatures.put(signature,1);
+                }
+
+            }
+
+
+            return countedAtomSignatures;
         }
         else{
             return null;
@@ -443,6 +521,176 @@ public class FragmentsCalculatorService {
 
 
 
+
+
+    List computeUniqueFragments(int withSugar){
+        List fragmentsToReunite = null;
+        HashSet<String> uniqueFragments = new HashSet<>();
+
+        List<Molecule> allMolecules = mr.findAll();
+
+        for(Molecule molecule : allMolecules) {
+
+            IAtomContainer ac = atomContainerToMoleculeService.createAtomContainer(molecule);
+
+            if(withSugar==0){
+                ac = removeSugars(ac);
+                if(ac != null) {
+                    molecule.setSugar_free_atom_number(ac.getAtomCount());
+                }
+                else{
+                    molecule.setSugar_free_atom_number(0);
+                }
+            }
+
+            List<String> allFragments = generateAtomSignatures(ac, height);
+
+            if(allFragments != null) {
+
+                uniqueFragments.addAll(allFragments);
+            }
+        }
+
+        if(withSugar==0){
+            mr.saveAll(allMolecules);
+        }
+
+
+
+
+        if(withSugar==1){
+            fragmentsToReunite = new ArrayList<FragmentWithSugar>();
+
+
+            for(String uf : uniqueFragments){
+                FragmentWithSugar newFragment = new FragmentWithSugar();
+                newFragment.setSignature(uf);
+                newFragment.setHeight(height);
+
+                fragmentsToReunite.add(newFragment);
+            }
+
+        }
+        else{
+            fragmentsToReunite = new ArrayList<FragmentWithoutSugar>();
+
+            for(String uf : uniqueFragments){
+                FragmentWithoutSugar newFragment = new FragmentWithoutSugar();
+                newFragment.setSignature(uf);
+                newFragment.setHeight(height);
+
+                fragmentsToReunite.add(newFragment);
+            }
+        }
+
+        return fragmentsToReunite;
+    }
+
+
+
+    void computeCpd(int withSugar){
+
+
+
+        Hashtable<String, Integer> fragments = new Hashtable<>();
+
+        if(withSugar==1){
+            List<FragmentWithSugar> fragmentlist = fr.findAll();
+            for(FragmentWithSugar f : fragmentlist){
+                fragments.put(f.getSignature(), f.getFragment_id());
+            }
+
+
+        }
+        else{
+            List<FragmentWithoutSugar> fragmentlist = fro.findAll();
+            for(FragmentWithoutSugar f : fragmentlist){
+                fragments.put(f.getSignature(), f.getFragment_id());
+            }
+        }
+
+
+
+
+        List<Molecule> allMolecules = mr.findAll();
+
+        for(Molecule molecule : allMolecules) {
+            ArrayList<MoleculeFragmentCpd> newCpdList = new ArrayList<>();
+            int numberRepeatedFragments = 0;
+
+            IAtomContainer ac = atomContainerToMoleculeService.createAtomContainer(molecule);
+
+            if (withSugar == 0) {
+                ac = removeSugars(ac);
+
+                if(ac.getAtomCount() == molecule.getAtom_number()){
+                    molecule.setContainsSugar(0);
+                }
+                else{
+                    molecule.setContainsSugar(1);
+                }
+                molecule = mr.save(molecule);
+            }
+
+            Hashtable<String, Integer> countedFragments = generateCountedAtomSignatures(ac, height);
+
+            if (countedFragments != null){
+
+                for (String f : countedFragments.keySet()) {
+
+                    if (withSugar == 1) {
+
+                        //with sugar
+
+                        //List<FragmentWithSugar> frag = fr.findBySignatureAndHeight(f, height);
+
+                        MoleculeFragmentCpd mfcUnit = new MoleculeFragmentCpd();
+                        mfcUnit.setMol_id(molecule.getId());
+                        mfcUnit.setComputed_with_sugar(1);
+                        mfcUnit.setHeight(height);
+                        mfcUnit.setNbfragmentinmolecule(countedFragments.get(f));
+                        mfcUnit.setFragment_id(fragments.get(f));
+
+                        newCpdList.add(mfcUnit);
+
+                        if(countedFragments.get(f)>1){
+                            numberRepeatedFragments++;
+                        }
+
+                    } else {
+
+                        //without sugar
+
+                        //List<FragmentWithoutSugar> frag = fro.findBySignatureAndHeight(f, height);
+
+                        MoleculeFragmentCpd mfcUnit = new MoleculeFragmentCpd();
+                        mfcUnit.setMol_id(molecule.getId());
+                        mfcUnit.setComputed_with_sugar(0);
+                        mfcUnit.setHeight(height);
+                        mfcUnit.setNbfragmentinmolecule(countedFragments.get(f));
+                        mfcUnit.setFragment_id(fragments.get(f));
+                        newCpdList.add(mfcUnit);
+
+                    }
+
+
+                }
+
+
+        }
+
+            cpdRepository.saveAll(newCpdList);
+
+            if(withSugar==1){
+                molecule.setNumberRepeatedFragments(numberRepeatedFragments);
+                mr.save(molecule);
+            }
+
+        }
+
+
+
+    }
 
 
 }

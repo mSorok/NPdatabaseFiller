@@ -24,7 +24,7 @@ import java.util.function.IntBinaryOperator;
 public class MoleculeChecker {
 
 
-    private final String[] check = {"C", "H", "N", "O", "P", "S", "Cl", "F", "As", "Se", "Br", "I", "B"};
+    private final String[] check = {"C", "H", "N", "O", "P", "S", "Cl", "F", "As", "Se", "Br", "I", "B", "Na", "Si", "K", "Fe"};
     private final HashSet<String> symbols2Check = new HashSet<String>(Arrays.asList(check));
 
 
@@ -101,12 +101,15 @@ public class MoleculeChecker {
                 IAtomType type = null;
                 try {
                     type = matcher.findMatchingAtomType(molecule, atom);
+                    AtomTypeManipulator.configure(atom, type);
                 } catch (CDKException e) {
                     e.printStackTrace();
                 }
-                AtomTypeManipulator.configure(atom, type);
+
             }
-            CDKHydrogenAdder adder = CDKHydrogenAdder.getInstance(molecule.getBuilder());
+
+
+            CDKHydrogenAdder adder = CDKHydrogenAdder.getInstance(molecule.getBuilder() );
 
             try {
                 adder.addImplicitHydrogens(molecule);
@@ -122,6 +125,7 @@ public class MoleculeChecker {
                 AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(molecule);
                 AtomContainerManipulator.percieveAtomTypesAndConfigureUnsetProperties(molecule);
                 aromaticity.apply(molecule);
+
             } catch (CDKException e) {
                 e.printStackTrace();
             }
@@ -149,6 +153,8 @@ public class MoleculeChecker {
             for (IAtom atom : molecule.atoms()) {
                 if (!symbols2Check.contains(atom.getSymbol())) {
                     System.out.println("contains strange");
+                    System.out.println(atom.getSymbol());
+                    System.out.println(molecule.getID());
                     return true;
                 }
             }

@@ -1,1 +1,1 @@
-/Users/maria/Projects/NPdatabaseFiller/MolFilesCollection/redundantTest.sdf	ZINC	NP
+MolFilesCollection/TCMDB/tcm.sdf	TCMDB	NP

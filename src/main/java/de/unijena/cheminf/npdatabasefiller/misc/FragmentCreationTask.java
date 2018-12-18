@@ -88,7 +88,7 @@ public class FragmentCreationTask implements Runnable {
 
                 for (String f : allFragments) {
                     List<FragmentWithSugar> inDBlist = fr.findBySignatureAndHeight(f, height);
-                    if(inDBlist.isEmpty()){ //if the fragment is already present in the database
+                    if(inDBlist.isEmpty()){ //if the fragment is not already present in the database
 
 
 
@@ -170,8 +170,6 @@ public class FragmentCreationTask implements Runnable {
                                 mfc.setComputed_with_sugar(0);
                                 cpdRepository.save(mfc);
                             }
-
-
                         }
                     }
                 }

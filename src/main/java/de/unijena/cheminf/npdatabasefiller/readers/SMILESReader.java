@@ -5,6 +5,7 @@ import de.unijena.cheminf.npdatabasefiller.misc.BeanUtil;
 import de.unijena.cheminf.npdatabasefiller.misc.MoleculeChecker;
 import de.unijena.cheminf.npdatabasefiller.model.OriMoleculeRepository;
 import de.unijena.cheminf.npdatabasefiller.services.AtomContainerToOriMoleculeService;
+import net.sf.jniinchi.INCHI_OPTION;
 import org.javatuples.Pair;
 import org.openscience.cdk.DefaultChemObjectBuilder;
 import org.openscience.cdk.exception.CDKException;
@@ -21,6 +22,7 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class SMILESReader implements Reader {
@@ -119,8 +121,7 @@ public class SMILESReader implements Reader {
     @Override
     public void readFileAndInsertInDB(File file, String source, String moleculeStatus) {
 
-        SmilesGenerator smilesGenerator = new SmilesGenerator(SmiFlavor.Absolute |
-                SmiFlavor.UseAromaticSymbols);
+        SmilesGenerator smilesGenerator = new SmilesGenerator(SmiFlavor.Unique );
 
 
         this.file = file;
@@ -132,8 +133,10 @@ public class SMILESReader implements Reader {
             System.out.println("SMILES reader creation");
 
 
-            while ((line = smilesReader.readLine()) != null  && count <= 500000) {
+            while ((line = smilesReader.readLine()) != null  && count <= 600000) {
+
                 String smiles_names = line;
+
                 if(!line.contains("smiles")) {
                     try {
                         String[] splitted = smiles_names.split("\\s+"); //splitting the canonical smiles format: SMILES \s mol name
@@ -148,7 +151,7 @@ public class SMILESReader implements Reader {
                             molecule.setProperty("ID", splitted[1]);
                             molecule.setID(splitted[1]);
 
-                            molecule.setProperty("FILE_ORIGIN", file.getName().replace(".sdf", ""));
+                            molecule.setProperty("FILE_ORIGIN", file.getName().replace(".smi", ""));
 
                             molecule.setProperty("DATABASE", source);
                             molecule.setProperty("MOL_STATUS", moleculeStatus);
@@ -156,10 +159,16 @@ public class SMILESReader implements Reader {
 
                             if (molecule != null){
                                 try {
-                                    InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+                                    List options = new ArrayList();
+                                    options.add(INCHI_OPTION.SNon);
+                                    options.add(INCHI_OPTION.ChiralFlagOFF);
+                                    options.add(INCHI_OPTION.AuxNone);
+                                    InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule, options );
 
                                     molecule.setProperty("INCHI", gen.getInchi());
                                     molecule.setProperty("INCHIKEY", gen.getInchiKey());
+
+
                                 } catch (CDKException e) {
                                     Integer totalBonds = molecule.getBondCount();
                                     Integer ib = 0;
@@ -167,20 +176,20 @@ public class SMILESReader implements Reader {
 
                                         IBond b = molecule.getBond(ib);
                                         if (b.getOrder() == IBond.Order.UNSET) {
-                                            //System.out.println(b.getOrder());
                                             b.setOrder(IBond.Order.SINGLE);
 
-                                            //System.out.println(b.getOrder());
-
-                                            //System.out.println(molecule.getBond(ib).getOrder());
                                         }
-
                                         ib++;
                                     }
-                                    InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule);
+                                    List options = new ArrayList();
+                                    options.add(INCHI_OPTION.SNon);
+                                    options.add(INCHI_OPTION.ChiralFlagOFF);
+                                    options.add(INCHI_OPTION.AuxNone);
+                                    InChIGenerator gen = InChIGeneratorFactory.getInstance().getInChIGenerator(molecule, options );
 
                                     molecule.setProperty("INCHI", gen.getInchi());
                                     molecule.setProperty("INCHIKEY", gen.getInchiKey());
+
                                 }
 
                                 molecule.setProperty("SMILES", smilesGenerator.create(molecule));

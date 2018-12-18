@@ -17,7 +17,7 @@ public interface IReaderService {
 
     //IAtomContainer checkMolecule(IAtomContainer molecule);
 
-    HashSet<String> ReadMolecularFilesAndInsertInDatabase();
+    HashSet<String> readMolecularFilesAndInsertInDatabase();
 
 
     ArrayList<IAtomContainer> returnCorrectMolecules();
