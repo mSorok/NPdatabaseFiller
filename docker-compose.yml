@@ -4,33 +4,29 @@ services:
   npls-mysql-db:
     image: mysql:latest
     environment:
-        MYSQL_ROOT_PASSWORD: root1234
-        MYSQL_DATABASE: NPLikenessDB
-        MYSQL_ROOT_HOST: '%'
-    ports:
-      - 3306:3306
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: NPLikenessDB
+      MYSQL_ROOT_HOST: '%'
     networks:
-      - mt-network
+    - mt-network
     volumes:
-      - /Users/maria/Projects/NPdatabaseFiller:/mysqldata
+    - /home/msorok/Projects/NP/NPdatabaseFiller:/mysqldata
+
   npls-db-filler:
     image: npls/npdatabasefiller:latest
     build:
       context: ./
       dockerfile: Dockerfile
-    command: "nplsmol/molecular_file_locations.txt 100"
+    command: "/nplsmol/molecular_file_locations.txt"
     volumes:
-      - /Users/maria/Projects/NPdatabaseFiller:/nplsmol
-
+    - /home/msorok/Projects/NP/NPdatabaseFiller/nplsmol:/nplsmol
     depends_on:
-      - npls-mysql-db
+    - npls-mysql-db
     ports:
-      - 8080:8080
+    - 8080:8080
     networks:
     - mt-network
+
 networks:
   mt-network:
     driver: bridge
-
-
-

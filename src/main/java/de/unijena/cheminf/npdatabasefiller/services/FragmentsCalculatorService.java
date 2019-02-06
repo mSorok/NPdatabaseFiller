@@ -623,7 +623,7 @@ try {
             if (withSugar == 0) {
                 ac = removeSugars(ac);
 
-                if(ac.getAtomCount() == molecule.getAtom_number()){
+                if(ac != null && !ac.isEmpty() && molecule != null && molecule.getAtom_number() != null && ac.getAtomCount() == molecule.getAtom_number()){
                     molecule.setContainsSugar(0);
                 }
                 else{

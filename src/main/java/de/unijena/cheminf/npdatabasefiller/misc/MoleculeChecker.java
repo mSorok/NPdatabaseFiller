@@ -51,6 +51,9 @@ public class MoleculeChecker {
                     }
                 }
                 molecule = biggestComponent;
+                if(molecule.getAtomCount()<5){
+                    return null;
+                }
             }
 
 

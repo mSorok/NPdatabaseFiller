@@ -81,6 +81,10 @@ public class MoleculeUnificationService {
                         } else if (isSM) {
                             newMol.setIs_a_NP(0);
                         }
+                        else{
+                            System.out.println("Weird molecule appeared - not SM not NP");
+                            newMol.setIs_a_NP(-1);
+                        }
                         newMol = mr.save(newMol);
 
                         for (OriMolecule om : oms) {
@@ -118,7 +122,7 @@ public class MoleculeUnificationService {
 
                 List<OriMolecule> oms = omr.findAllByInchikey(uinchi);
                 Molecule newMol = mr.findByInchikey(uinchi);
-                if(newMol==null) {
+                if(newMol==null && (oms.get(0).isANP() || oms.get(0).isASM())) {
 
                      newMol = new Molecule();
 
@@ -170,6 +174,8 @@ public class MoleculeUnificationService {
         MolecularFormulaManipulator mfm = new MolecularFormulaManipulator();
         AtomContainerManipulator acm = new AtomContainerManipulator();
 
+        System.out.println(allmols.size());
+
 
         for(Molecule m : allmols){
 
@@ -202,15 +208,75 @@ public class MoleculeUnificationService {
 
 
 
+            //ratio number carbons / size
+
+            m.setRatioCsize(  (double)m.getNumberOfCarbons() / (double)m.getAtom_number() );
+
+            mr.save(m);
+
+
+        }
+
+    }
+
+
+
+
+
+    public void computeAdditionalMolecularFeatures(String source, String status){
+
+        System.out.println("Calculating molecular parameters for "+source+" "+status);
+
+
+        List<Molecule> allmols = mr.findAllMoleculesByStatusAndBySource(source, status);
+        AllRingsFinder arf = new AllRingsFinder();
+        MolecularFormulaManipulator mfm = new MolecularFormulaManipulator();
+        AtomContainerManipulator acm = new AtomContainerManipulator();
+
+        System.out.println(allmols.size());
+
+
+        for(Molecule m : allmols){
+
+            IAtomContainer im = ac2m.createAtomContainer(m);
+
+            // count rings
+            try {
+                IRingSet rs = arf.findAllRings(im, 15);
+
+                m.setNumberOfRings(rs.getAtomContainerCount());
+
+
+            } catch (CDKException e) {
+                System.out.println("Too complex: "+m.getSmiles());
+            }
+
+            //compute molecular formula
+            m.setMolecularFormula(mfm.getString(mfm.getMolecularFormula(im) ));
+
+
+            //compute number of carbons, of nitrogens, of oxygens
+            m.setNumberOfCarbons(mfm.getElementCount(mfm.getMolecularFormula(im), "C"));
+
+            m.setNumberOfOxygens(mfm.getElementCount(mfm.getMolecularFormula(im), "O"));
+
+            m.setNumberOfNitrogens(mfm.getElementCount(mfm.getMolecularFormula(im), "N"));
+
+            m.setMolecularWeight( acm.getMolecularWeight(im) );
+
+
 
 
             //ratio number carbons / size
 
             m.setRatioCsize(  (double)m.getNumberOfCarbons() / (double)m.getAtom_number() );
 
+            mr.save(m);
+
 
         }
 
     }
+
 
 }

@@ -22,5 +22,14 @@ public interface MoleculeRepository extends CrudRepository<Molecule, Integer> {
 
     Molecule findByInchikey(String inchikey);
 
+    @Query(nativeQuery = true, value = "Select * from molecule WHERE npl_score IS NULL")
+    List<Molecule> findAllMoleculesWithoutNPLS();
+
+    @Query(nativeQuery = true, value = "Select * from molecule INNER JOIN ori_molecule ON(mol_id=unique_mol_id) WHERE npl_score IS NULL AND source= :source AND status= :status")
+    List<Molecule> findAllMoleculesWithoutNPLSByStatusAndBySource(@Param("source") String source, @Param("status") String status);
+
+    @Query(nativeQuery = true, value = "Select * from molecule INNER JOIN ori_molecule ON(mol_id=unique_mol_id) WHERE source= :source AND status= :status")
+    List<Molecule> findAllMoleculesByStatusAndBySource(@Param("source") String source, @Param("status") String status);
+
 
 }
