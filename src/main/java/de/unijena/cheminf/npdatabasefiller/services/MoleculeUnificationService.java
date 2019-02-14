@@ -181,6 +181,8 @@ public class MoleculeUnificationService {
 
             IAtomContainer im = ac2m.createAtomContainer(m);
 
+
+
             // count rings
             try {
                 IRingSet rs = arf.findAllRings(im, 15);
@@ -204,6 +206,9 @@ public class MoleculeUnificationService {
             m.setNumberOfNitrogens(mfm.getElementCount(mfm.getMolecularFormula(im), "N"));
 
             m.setMolecularWeight( acm.getMolecularWeight(im) );
+
+            im = AtomContainerManipulator.copyAndSuppressedHydrogens(im);
+            m.setAtom_number(im.getAtomCount());
 
 
 
@@ -264,6 +269,9 @@ public class MoleculeUnificationService {
 
             m.setMolecularWeight( acm.getMolecularWeight(im) );
 
+
+            im = AtomContainerManipulator.copyAndSuppressedHydrogens(im);
+            m.setAtom_number(im.getAtomCount());
 
 
 

@@ -131,6 +131,8 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
                 nplScorer.doWork(true);
                 nplScorer.doWork(false);
 
+                moleculeUnificationService.computeAdditionalMolecularFeatures();
+
 
             }
 
