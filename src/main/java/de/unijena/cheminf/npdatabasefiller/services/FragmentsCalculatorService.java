@@ -425,9 +425,16 @@ try {
 
     private IAtomContainer removeSugars(IAtomContainer molecule){
 
+        IAtomContainer newMolecule = null;
+        try {
+            newMolecule = molecule.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
         try {
 
-            IRingSet ringset = Cycles.sssr(molecule).toRingSet();
+            IRingSet ringset = Cycles.sssr(newMolecule).toRingSet();
 
             // RING SUGARS
             for (IAtomContainer one_ring : ringset.atomContainers()) {
@@ -438,11 +445,11 @@ try {
 
                     if (formula.equals("C5O") | formula.equals("C4O") | formula.equals("C6O")) {
                         if (IBond.Order.SINGLE.equals(bondorder)) {
-                            if (shouldRemoveRing(one_ring, molecule, ringset) == true) {
+                            if (shouldRemoveRing(one_ring, newMolecule, ringset) == true) {
                                 for (IAtom atom : one_ring.atoms()) {
                                     {
 
-                                        molecule.removeAtom(atom);
+                                        newMolecule.removeAtom(atom);
                                     }
                                 }
                             }
@@ -453,8 +460,8 @@ try {
                     return null;
                 }
             }
-            Map<Object, Object> properties = molecule.getProperties();
-            IAtomContainerSet molset = ConnectivityChecker.partitionIntoMolecules(molecule);
+            Map<Object, Object> properties = newMolecule.getProperties();
+            IAtomContainerSet molset = ConnectivityChecker.partitionIntoMolecules(newMolecule);
             for (int i = 0; i < molset.getAtomContainerCount(); i++) {
                 molset.getAtomContainer(i).setProperties(properties);
                 int size = molset.getAtomContainer(i).getBondCount();

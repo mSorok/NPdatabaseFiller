@@ -200,8 +200,12 @@ public class SMILESReader implements Reader {
 
                                 molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
 
+                                if(!moleculeChecker.isForbiddenMolecule(molecule)){
+                                    oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
+                                }
 
-                                oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
+
+
                             }
 
 

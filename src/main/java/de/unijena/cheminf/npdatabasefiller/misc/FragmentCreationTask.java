@@ -227,10 +227,16 @@ public class FragmentCreationTask implements Runnable {
 
 
     private IAtomContainer removeSugars(IAtomContainer molecule){
+        IAtomContainer newMolecule = null;
+        try {
+            newMolecule = molecule.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
 
         try {
 
-            IRingSet ringset = Cycles.sssr(molecule).toRingSet();
+            IRingSet ringset = Cycles.sssr(newMolecule).toRingSet();
 
             // RING SUGARS
             for (IAtomContainer one_ring : ringset.atomContainers()) {
@@ -245,7 +251,7 @@ public class FragmentCreationTask implements Runnable {
                                 for (IAtom atom : one_ring.atoms()) {
                                     {
 
-                                        molecule.removeAtom(atom);
+                                        newMolecule.removeAtom(atom);
                                     }
                                 }
                             }
@@ -256,8 +262,8 @@ public class FragmentCreationTask implements Runnable {
                     return null;
                 }
             }
-            Map<Object, Object> properties = molecule.getProperties();
-            IAtomContainerSet molset = ConnectivityChecker.partitionIntoMolecules(molecule);
+            Map<Object, Object> properties = newMolecule.getProperties();
+            IAtomContainerSet molset = ConnectivityChecker.partitionIntoMolecules(newMolecule);
             for (int i = 0; i < molset.getAtomContainerCount(); i++) {
                 molset.getAtomContainer(i).setProperties(properties);
                 int size = molset.getAtomContainer(i).getBondCount();

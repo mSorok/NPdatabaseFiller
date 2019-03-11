@@ -140,6 +140,8 @@ public class DataSetUploaderService {
 
                 oriMolecule.setUnique_mol_id(molecule.getId());
 
+                omr.save(oriMolecule);
+
             }
 
 

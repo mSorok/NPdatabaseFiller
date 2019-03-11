@@ -18,6 +18,8 @@ public class Molecule implements IMolecule{
 
     private Double npl_sugar_score;
 
+    private Double npl_noh_score;
+
     private Double sml_score;
 
     private Double sml_sugar_score;
@@ -231,5 +233,14 @@ public class Molecule implements IMolecule{
 
     public void setMolecularWeight(Double molecularWeight) {
         this.molecularWeight = molecularWeight;
+    }
+
+
+    public Double getNpl_noh_score() {
+        return npl_noh_score;
+    }
+
+    public void setNpl_noh_score(Double npl_noh_score) {
+        this.npl_noh_score = npl_noh_score;
     }
 }

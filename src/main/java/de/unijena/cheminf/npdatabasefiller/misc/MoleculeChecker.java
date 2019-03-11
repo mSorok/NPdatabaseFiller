@@ -27,6 +27,9 @@ public class MoleculeChecker {
     private final String[] check = {"C", "H", "N", "O", "P", "S", "Cl", "F", "As", "Se", "Br", "I", "B", "Na", "Si", "K", "Fe"};
     private final HashSet<String> symbols2Check = new HashSet<String>(Arrays.asList(check));
 
+    private final String[] forbiddenInchiKeys = {"OOHPORRAEMMMCX-UHFFFAOYSA-N"};
+    private final  HashSet<String> inchis2Check = new HashSet<String>(Arrays.asList(forbiddenInchiKeys));
+
 
     MoleculeConnectivityChecker mcc;
 
@@ -51,7 +54,8 @@ public class MoleculeChecker {
                     }
                 }
                 molecule = biggestComponent;
-                if(molecule.getAtomCount()<5){
+
+                if(molecule.getAtomCount()<=6){
                     return null;
                 }
             }
@@ -163,6 +167,15 @@ public class MoleculeChecker {
             }
         }
         return false;
+    }
+
+    public boolean isForbiddenMolecule(IAtomContainer molecule){
+        String inchikey = molecule.getProperty("INCHIKEY");
+        if(inchis2Check.contains(inchikey)){
+            return true;
+        }
+        return false;
+
     }
 
 

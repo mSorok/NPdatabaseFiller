@@ -7,7 +7,6 @@ import java.util.Map;
 import org.openscience.cdk.graph.ConnectivityChecker;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.interfaces.IAtomContainerSet;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 /**

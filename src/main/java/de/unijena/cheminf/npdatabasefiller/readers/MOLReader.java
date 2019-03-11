@@ -190,7 +190,9 @@ public class MOLReader implements Reader {
                         molecule.setProperty("ACQUISITION_DATE", dtf.format(localDate));
 
 
-                        oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
+                        if(!moleculeChecker.isForbiddenMolecule(molecule)){
+                            oriMoleculeRepository.save(ac2om.createMolInstance(molecule));
+                        }
                     }
 
 

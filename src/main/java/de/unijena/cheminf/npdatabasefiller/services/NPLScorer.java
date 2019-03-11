@@ -70,8 +70,12 @@ public class NPLScorer {
         }
         else{
             for(Molecule molecule : moleculeRepository.findAll()){
-            Double npl_score = 0.0;
-            Double sml_score = 0.0;
+                Double npl_score = 0.0;
+                Double sml_score = 0.0;
+
+                Double npl_score_noh = 0.0;
+
+                Integer noh_mol_size = 0;
 
 
                 List<Object[]> sugarfreeFragmentScores = cpdRepository.findAllSugarfreeFragmentsByMolid(molecule.getId(), height);
@@ -82,11 +86,28 @@ public class NPLScorer {
                     Double scorenp = Double.parseDouble(obj[2].toString());
                     Double scoresm = Double.parseDouble(obj[3].toString());
 
+
+
                     npl_score = npl_score + (scorenp * nbFragmentsInMolecule);
                     sml_score = sml_score + (scoresm * nbFragmentsInMolecule);
+
+
+                    //computing the score without fragments centered on H
+                    String signature = obj[4].toString();
+                    if(!signature.startsWith("[H]")){
+
+                        noh_mol_size = noh_mol_size +1;
+
+                        npl_score_noh = npl_score_noh + (scorenp * nbFragmentsInMolecule);
+
+
+                    }
+
+
                 }
                 molecule.setNpl_score(npl_score/molecule.getSugar_free_atom_number());
                 molecule.setSml_score(sml_score/molecule.getSugar_free_atom_number());
+                molecule.setNpl_noh_score(npl_score_noh / noh_mol_size);
 
 
 

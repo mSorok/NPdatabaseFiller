@@ -69,11 +69,11 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        System.out.println("Code version from 06 February 2019");
+        System.out.println("Code version from 28 February 2019");
 
         if (args.length > 0) {
 
-            if(args[args.length-1].equals("fromScratch") || args[args.length-1].equals(args[0])) {
+            if(args[args.length-1].equals("fromScratch") || (args[args.length-1].equals(args[0]) && !args[0].equals("updateScores")) ){
 
 
                 String locationFile = args[0];
