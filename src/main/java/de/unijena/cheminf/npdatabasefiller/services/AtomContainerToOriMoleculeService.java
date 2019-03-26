@@ -3,6 +3,7 @@ package de.unijena.cheminf.npdatabasefiller.services;
 import de.unijena.cheminf.npdatabasefiller.model.IMolecule;
 import de.unijena.cheminf.npdatabasefiller.model.OriMolecule;
 import org.openscience.cdk.exception.InvalidSmilesException;
+import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.silent.SilentChemObjectBuilder;
 import org.openscience.cdk.smiles.SmilesParser;
@@ -13,9 +14,6 @@ import org.springframework.stereotype.Service;
 public class AtomContainerToOriMoleculeService implements AtomContainerToMolInstanceService{
 
 
-    //public AtomContainerToOriMoleculeService(){
-    //    System.out.println("Transforming IAtom containers to injectable OriMolecules");
-    //}
 
     @Override
     public OriMolecule createMolInstance(IAtomContainer ac) {
@@ -33,9 +31,16 @@ public class AtomContainerToOriMoleculeService implements AtomContainerToMolInst
 
         om.setStatus(ac.getProperty("MOL_STATUS"));
 
-        om.setAtom_number(ac.getAtomCount());
+        om.setTotal_atom_number(ac.getAtomCount());
 
+        int heavyAtomCount = 0;
+        for(IAtom a : ac.atoms()){
+            if(!a.getSymbol().equals("H")){
+                heavyAtomCount=heavyAtomCount+1;
+            }
+        }
 
+        om.setHeavy_atom_number(heavyAtomCount);
         return om;
     }
 
@@ -59,8 +64,5 @@ public class AtomContainerToOriMoleculeService implements AtomContainerToMolInst
         return ac;
     }
 
-    public void iAmAlive(){
-        System.out.println("I'm alive!");
-    }
 
 }

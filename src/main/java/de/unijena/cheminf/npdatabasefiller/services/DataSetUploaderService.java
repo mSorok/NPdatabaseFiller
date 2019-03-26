@@ -121,7 +121,9 @@ public class DataSetUploaderService {
                 molecule.setInchikey(oriMolecule.getInchikey());
                 molecule.setInchi(oriMolecule.getInchi());
                 molecule.setSmiles(oriMolecule.getSmiles());
-                molecule.setAtom_number(oriMolecule.getAtom_number());
+                molecule.setHeavy_atom_number(oriMolecule.getHeavy_atom_number());
+                molecule.setTotal_atom_number(oriMolecule.getTotal_atom_number());
+
 
                 if(this.status.equals("NP")){
                     molecule.setIs_a_NP(1);
@@ -162,9 +164,22 @@ public class DataSetUploaderService {
             IAtomContainer acNoSugar = removeSugars(ac);
 
             if (acNoSugar != null) {
-                molecule.setSugar_free_atom_number(acNoSugar.getAtomCount());
+                molecule.setContainsSugar(1);
+
+                molecule.setSugar_free_total_atom_number(acNoSugar.getAtomCount());
+
+                int noSugarHeavyAtomCount = 0;
+                for(IAtom a: acNoSugar.atoms()){
+                    if(!a.getSymbol().equals("H")){
+                        noSugarHeavyAtomCount=noSugarHeavyAtomCount+1;
+                    }
+                }
+
+                molecule.setSugar_free_heavy_atom_number(noSugarHeavyAtomCount);
             } else {
-                molecule.setSugar_free_atom_number(0);
+                molecule.setContainsSugar(0);
+                molecule.setSugar_free_heavy_atom_number(0);
+                molecule.setSugar_free_total_atom_number(0);
             }
 
             molecule = mr.save(molecule);
@@ -179,7 +194,6 @@ public class DataSetUploaderService {
                     FragmentWithSugar newFragment = new FragmentWithSugar();
                     newFragment.setHeight(2);
                     newFragment.setSignature(fragment);
-                    newFragment.setScoreSM(0.0);
                     newFragment.setScoreNP(1.0);
 
                     newFragment = fr.save(newFragment);
@@ -220,7 +234,6 @@ public class DataSetUploaderService {
                         FragmentWithoutSugar newFragment = new FragmentWithoutSugar();
                         newFragment.setHeight(2);
                         newFragment.setSignature(fragmentNoSugar);
-                        newFragment.setScoreSM(0.0);
                         newFragment.setScoreNP(1.0);
 
                         newFragment = fro.save(newFragment);
@@ -272,7 +285,7 @@ public class DataSetUploaderService {
                 Double scorenp = Double.parseDouble(obj[2].toString());
                 npl_sugar_score = npl_sugar_score+ (scorenp * nbFragmentsInMolecule);
             }
-            molecule.setNpl_sugar_score( npl_sugar_score/molecule.getAtom_number()  );
+            molecule.setNpl_sugar_score( npl_sugar_score/(double)molecule.getTotal_atom_number()  );
 
 
             if(molecule.getNpl_sugar_score().isNaN()){
@@ -282,6 +295,8 @@ public class DataSetUploaderService {
 
             /********* WITHOUT SUGAR ********/
             Double npl_score = 0.0;
+            Double npl_score_noh = 0.0;
+
             List<Object[]> sugarfreeFragmentScores = cpdRepository.findAllSugarfreeFragmentsByMolid(molecule.getId(), height);
             for(Object[] obj : sugarfreeFragmentScores){
 
@@ -290,12 +305,24 @@ public class DataSetUploaderService {
                 Double scorenp = Double.parseDouble(obj[2].toString());
 
                 npl_score = npl_score + (scorenp * nbFragmentsInMolecule);
+
+                //computing the score without fragments centered on H
+                String signature = obj[4].toString();
+                if(!signature.startsWith("[H]")){
+
+                    npl_score_noh = npl_score_noh + (scorenp * nbFragmentsInMolecule);
+                }
             }
 
-            molecule.setNpl_score(npl_score/molecule.getSugar_free_atom_number());
+
+            molecule.setNpl_score(npl_score/(double)molecule.getSugar_free_total_atom_number() );
+            molecule.setNpl_noh_score(npl_score_noh / (double)molecule.getSugar_free_heavy_atom_number());
 
             if(molecule.getNpl_score().isNaN()){
                 molecule.setNpl_score(0.0);
+            }
+            if(molecule.getNpl_noh_score().isNaN()){
+                molecule.setNpl_noh_score(0.0);
             }
 
             mr.save(molecule);

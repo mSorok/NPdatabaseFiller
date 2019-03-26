@@ -62,31 +62,24 @@ public class FragmentFrequencyCalculatorService {
                     if(npWithFragment==0){
                         //the fragment is only in SM
                         sugarFragment.setScoreNP(0.0);
-                        sugarFragment.setScoreSM(1.0);
 
                     }
                     else if(smWithFragment==0){
                         //the fragment is only in NP
                         sugarFragment.setScoreNP(1.0);
-                        sugarFragment.setScoreSM(0.0);
                     }
 
                 }
                 else{
 
                     double scoreNPf = Math.log(((double) npWithFragment / (double)smWithFragment) * tot_sm_np);
-                    double scoreSMf = Math.log(((double) smWithFragment / (double)npWithFragment) * tot_np_sm);
                     if (!Double.isNaN(scoreNPf) && !Double.isInfinite(scoreNPf)) {
                         sugarFragment.setScoreNP(scoreNPf);
                     } else {
                         sugarFragment.setScoreNP(0.0);
                     }
 
-                    if (!Double.isNaN(scoreSMf) && !Double.isInfinite(scoreSMf)) {
-                        sugarFragment.setScoreSM(scoreSMf);
-                    } else {
-                        sugarFragment.setScoreSM(0.0);
-                    }
+
                 }
 
             }
@@ -95,27 +88,18 @@ public class FragmentFrequencyCalculatorService {
                 if(obj3 == null){
                     // not in NP
                     sugarFragment.setScoreNP(0.0);
-                    sugarFragment.setScoreSM(1.0);
                 }
                 else if(obj4 == null) {
                     // not in SM
                     sugarFragment.setScoreNP(1.0);
-                    sugarFragment.setScoreSM(0.0);
                 }
                 else{
                     sugarFragment.setScoreNP(0.0);
-                    sugarFragment.setScoreSM(0.0);
                 }
 
             }
 
-
-
-
             sugarRepository.save(sugarFragment);
-
-
-
 
         }
 
@@ -142,17 +126,14 @@ public class FragmentFrequencyCalculatorService {
                     if (npWithFragment == 0) {
                         //the fragment is only in SM
                         sugarFreeFragment.setScoreNP(0.0);
-                        sugarFreeFragment.setScoreSM(1.0);
 
                     } else if (smWithFragment == 0) {
                         //the fragment is only in NP
                         sugarFreeFragment.setScoreNP(1.0);
-                        sugarFreeFragment.setScoreSM(0.0);
                     }
                 } else {
 
                     double scoreNPf = Math.log(((double) npWithFragment / smWithFragment) * tot_sm_np);
-                    double scoreSMf = Math.log(((double) smWithFragment / npWithFragment) * tot_np_sm);
 
                     if (!Double.isNaN(scoreNPf) && !Double.isInfinite(scoreNPf)) {
                         sugarFreeFragment.setScoreNP(scoreNPf);
@@ -160,11 +141,7 @@ public class FragmentFrequencyCalculatorService {
                         sugarFreeFragment.setScoreNP(0.0);
                     }
 
-                    if (!Double.isNaN(scoreSMf) && !Double.isInfinite(scoreSMf)) {
-                        sugarFreeFragment.setScoreSM(scoreSMf);
-                    } else {
-                        sugarFreeFragment.setScoreSM(0.0);
-                    }
+
                 }
             }
 
@@ -172,33 +149,17 @@ public class FragmentFrequencyCalculatorService {
                 if(obj5 == null){
                     // not in NP
                     sugarFreeFragment.setScoreNP(0.0);
-                    sugarFreeFragment.setScoreSM(1.0);
                 }
                 else if(obj6 == null) {
                     // not in SM
                     sugarFreeFragment.setScoreNP(1.0);
-                    sugarFreeFragment.setScoreSM(0.0);
                 }
                 else{
                     sugarFreeFragment.setScoreNP(0.0);
-                    sugarFreeFragment.setScoreSM(0.0);
                 }
 
             }
-
-
-
-
-
             sugarFreeRepository.save(sugarFreeFragment);
-
         }
-
-
-
-
-
-
-
     }
 }

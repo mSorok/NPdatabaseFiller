@@ -74,7 +74,8 @@ public class MoleculeUnificationService {
                         newMol.setInchikey(oms.get(0).getInchikey());
                         newMol.setInchi(oms.get(0).getInchi());
                         newMol.setSmiles(oms.get(0).getSmiles());
-                        newMol.setAtom_number(oms.get(0).getAtom_number());
+                        newMol.setTotal_atom_number(oms.get(0).getTotal_atom_number());
+                        newMol.setHeavy_atom_number(oms.get(0).getHeavy_atom_number());
                         if (isNP) {
                             newMol.setIs_a_NP(1);
 
@@ -129,7 +130,12 @@ public class MoleculeUnificationService {
                     newMol.setInchikey(oms.get(0).getInchikey());
                     newMol.setInchi(oms.get(0).getInchi());
                     newMol.setSmiles(oms.get(0).getSmiles());
-                    newMol.setAtom_number(oms.get(0).getAtom_number());
+
+
+                    newMol.setTotal_atom_number(oms.get(0).getTotal_atom_number());
+                    newMol.setHeavy_atom_number(oms.get(0).getHeavy_atom_number());
+
+
                     if (oms.get(0).isANP()) {
                         newMol.setIs_a_NP(1);
                     } else if (oms.get(0).isASM()) {
@@ -170,52 +176,13 @@ public class MoleculeUnificationService {
 
 
         List<Molecule> allmols = mr.findAll();
-        AllRingsFinder arf = new AllRingsFinder();
-        MolecularFormulaManipulator mfm = new MolecularFormulaManipulator();
-        AtomContainerManipulator acm = new AtomContainerManipulator();
 
         System.out.println(allmols.size());
 
 
         for(Molecule m : allmols){
 
-            IAtomContainer im = ac2m.createAtomContainer(m);
-
-
-
-            // count rings
-            try {
-                IRingSet rs = arf.findAllRings(im, 15);
-
-                m.setNumberOfRings(rs.getAtomContainerCount());
-
-
-            } catch (CDKException e) {
-                System.out.println("Too complex: "+m.getSmiles());
-            }
-
-            //compute molecular formula
-            m.setMolecularFormula(mfm.getString(mfm.getMolecularFormula(im) ));
-
-
-            //compute number of carbons, of nitrogens, of oxygens
-            m.setNumberOfCarbons(mfm.getElementCount(mfm.getMolecularFormula(im), "C"));
-
-            m.setNumberOfOxygens(mfm.getElementCount(mfm.getMolecularFormula(im), "O"));
-
-            m.setNumberOfNitrogens(mfm.getElementCount(mfm.getMolecularFormula(im), "N"));
-
-            m.setMolecularWeight( acm.getMolecularWeight(im) );
-
-            im = AtomContainerManipulator.copyAndSuppressedHydrogens(im);
-            m.setAtom_number(im.getAtomCount());
-
-
-
-
-            //ratio number carbons / size
-
-            m.setRatioCsize(  (double)m.getNumberOfCarbons() / (double)m.getAtom_number() );
+            m = computeAdditionalMolecularFeatures(m);
 
             mr.save(m);
 
@@ -234,50 +201,16 @@ public class MoleculeUnificationService {
 
 
         List<Molecule> allmols = mr.findAllMoleculesByStatusAndBySource(source, status);
-        AllRingsFinder arf = new AllRingsFinder();
-        MolecularFormulaManipulator mfm = new MolecularFormulaManipulator();
-        AtomContainerManipulator acm = new AtomContainerManipulator();
+
 
         System.out.println(allmols.size());
 
 
         for(Molecule m : allmols){
 
-            IAtomContainer im = ac2m.createAtomContainer(m);
-
-            // count rings
-            try {
-                IRingSet rs = arf.findAllRings(im, 15);
-
-                m.setNumberOfRings(rs.getAtomContainerCount());
+            m = computeAdditionalMolecularFeatures(m);
 
 
-            } catch (CDKException e) {
-                System.out.println("Too complex: "+m.getSmiles());
-            }
-
-            //compute molecular formula
-            m.setMolecularFormula(mfm.getString(mfm.getMolecularFormula(im) ));
-
-
-            //compute number of carbons, of nitrogens, of oxygens
-            m.setNumberOfCarbons(mfm.getElementCount(mfm.getMolecularFormula(im), "C"));
-
-            m.setNumberOfOxygens(mfm.getElementCount(mfm.getMolecularFormula(im), "O"));
-
-            m.setNumberOfNitrogens(mfm.getElementCount(mfm.getMolecularFormula(im), "N"));
-
-            m.setMolecularWeight( acm.getMolecularWeight(im) );
-
-
-            im = AtomContainerManipulator.copyAndSuppressedHydrogens(im);
-            m.setAtom_number(im.getAtomCount());
-
-
-
-            //ratio number carbons / size
-
-            m.setRatioCsize(  (double)m.getNumberOfCarbons() / (double)m.getAtom_number() );
 
             mr.save(m);
 
@@ -287,4 +220,48 @@ public class MoleculeUnificationService {
     }
 
 
+
+
+    public Molecule computeAdditionalMolecularFeatures(Molecule m){
+        AllRingsFinder arf = new AllRingsFinder();
+        MolecularFormulaManipulator mfm = new MolecularFormulaManipulator();
+        AtomContainerManipulator acm = new AtomContainerManipulator();
+
+        IAtomContainer im = ac2m.createAtomContainer(m);
+
+        // count rings
+        try {
+            IRingSet rs = arf.findAllRings(im, 15);
+
+            m.setNumberOfRings(rs.getAtomContainerCount());
+
+
+        } catch (CDKException e) {
+            System.out.println("Too complex: "+m.getSmiles());
+        }
+
+        //compute molecular formula
+        m.setMolecularFormula(mfm.getString(mfm.getMolecularFormula(im) ));
+
+
+        //compute number of carbons, of nitrogens, of oxygens
+        m.setNumberOfCarbons(mfm.getElementCount(mfm.getMolecularFormula(im), "C"));
+
+        m.setNumberOfOxygens(mfm.getElementCount(mfm.getMolecularFormula(im), "O"));
+
+        m.setNumberOfNitrogens(mfm.getElementCount(mfm.getMolecularFormula(im), "N"));
+
+        m.setMolecularWeight( acm.getMolecularWeight(im) );
+
+        //ratio number carbons / size
+
+        m.setRatioCsize(  (double)m.getNumberOfCarbons() / (double)m.getHeavy_atom_number() );
+
+
+        return(m);
+    }
+
+
 }
+
+

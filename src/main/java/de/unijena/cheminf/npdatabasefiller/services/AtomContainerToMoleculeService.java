@@ -3,6 +3,7 @@ package de.unijena.cheminf.npdatabasefiller.services;
 import de.unijena.cheminf.npdatabasefiller.model.IMolecule;
 import de.unijena.cheminf.npdatabasefiller.model.Molecule;
 import org.openscience.cdk.exception.InvalidSmilesException;
+import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.silent.SilentChemObjectBuilder;
 import org.openscience.cdk.smiles.SmilesParser;
@@ -17,7 +18,18 @@ public class AtomContainerToMoleculeService implements AtomContainerToMolInstanc
         m.setInchi(ac.getProperty("INCHI"));
         m.setInchikey(ac.getProperty("INCHIKEY"));
         m.setSmiles(ac.getProperty("SMILES"));
-        m.setAtom_number(ac.getAtomCount());
+
+
+        m.setTotal_atom_number(ac.getAtomCount());
+
+        int heavyAtomCount = 0;
+        for(IAtom a : ac.atoms()){
+            if(!a.getSymbol().equals("H")){
+                heavyAtomCount=heavyAtomCount+1;
+            }
+        }
+
+        m.setHeavy_atom_number(heavyAtomCount);
 
         return m;
     }
