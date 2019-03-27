@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 
 @Entity
-@Table(name="molecule", indexes = {  @Index(name = "IDX1", columnList = "inchikey", unique = true) , @Index(name = "IDX2", columnList = "is_a_NP")  } )
+@Table(name="molecule", indexes = {  @Index(name = "IDX1", columnList = "inchikey", unique = true) , @Index(name = "IDX2", columnList = "is_a_NP"), @Index(name = "IDX3", columnList = "mol_id"), @Index(name = "IDX4", columnList = "npl_score")  } )
 public class Molecule implements IMolecule{
 
 

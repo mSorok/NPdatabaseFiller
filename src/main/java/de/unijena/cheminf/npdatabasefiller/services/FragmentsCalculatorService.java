@@ -543,10 +543,19 @@ try {
             if(withSugar==0){
                 ac = removeSugars(ac);
                 if(ac != null) {
-                    molecule.setSugar_free_atom_number(ac.getAtomCount());
+
+                    molecule.setSugar_free_total_atom_number(ac.getAtomCount());
+                    int countSugarFreeHeavyAtoms = 0;
+                    for(IAtom a : ac.atoms()){
+                        if(!a.getSymbol().equals("H")){
+                            countSugarFreeHeavyAtoms=countSugarFreeHeavyAtoms+1;
+                        }
+                    }
+                    molecule.setSugar_free_heavy_atom_number(countSugarFreeHeavyAtoms);
                 }
                 else{
-                    molecule.setSugar_free_atom_number(0);
+                    molecule.setSugar_free_total_atom_number(0);
+                    molecule.setSugar_free_heavy_atom_number(0);
                 }
             }
 
@@ -630,7 +639,7 @@ try {
             if (withSugar == 0) {
                 ac = removeSugars(ac);
 
-                if(ac != null && !ac.isEmpty() && molecule != null && molecule.getAtom_number() != null && ac.getAtomCount() == molecule.getAtom_number()){
+                if(ac != null && !ac.isEmpty() && molecule != null && molecule.getTotal_atom_number() != null && ac.getAtomCount() == molecule.getTotal_atom_number()){
                     molecule.setContainsSugar(0);
                 }
                 else{
@@ -660,7 +669,7 @@ try {
 
                         newCpdList.add(mfcUnit);
 
-                        if(countedFragments.get(f)>1){
+                        if(countedFragments.get(f)>1 && !f.startsWith("[H]")){
                             numberRepeatedFragments++;
                         }
 
