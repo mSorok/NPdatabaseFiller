@@ -52,7 +52,7 @@ public interface MoleculeFragmentCpdRepository  extends CrudRepository<MoleculeF
     List<MoleculeFragmentCpd> findByfragment_id(@Param("fragment_id")Integer fragment_id);
 
 
-    @Query(nativeQuery = true, value="SELECT f.fragment_id, cpd.nbfragmentinmolecule, f.scorenp  " +
+    @Query(nativeQuery = true, value="SELECT f.fragment_id, cpd.nbfragmentinmolecule, f.scorenp, f.signature  " +
             "FROM molecule_fragment_cpd cpd INNER JOIN fragment_with_sugar f USING(fragment_id) " +
             "WHERE cpd.computed_with_sugar=1 AND f.height= :height AND cpd.mol_id= :mol_id")
     List<Object[]> findAllSugarFragmentsByMolid(@Param("mol_id") Integer mol_id, @Param("height") Integer height );

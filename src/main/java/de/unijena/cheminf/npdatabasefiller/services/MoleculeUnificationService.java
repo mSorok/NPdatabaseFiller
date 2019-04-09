@@ -36,7 +36,7 @@ public class MoleculeUnificationService {
      * Redundancy checker by Inchikey
      */
     public void doWork(){
-        System.out.println("Starting redundancy elimination work!");
+        System.out.println("Starting redundancy elimination work");
 
 
         // Step 1:
@@ -67,10 +67,8 @@ public class MoleculeUnificationService {
 
                     Molecule newMol = mr.findByInchikey(uinchi);
                     if(newMol==null) {
-                        //create new unique molecule instance
-
+                        //create new unique Molecule instance
                         newMol = new Molecule();
-
                         newMol.setInchikey(oms.get(0).getInchikey());
                         newMol.setInchi(oms.get(0).getInchi());
                         newMol.setSmiles(oms.get(0).getSmiles());
@@ -92,21 +90,14 @@ public class MoleculeUnificationService {
                             om.setUnique_mol_id(newMol.getId());
                             omr.save(om);
                         }
-
                     }
                     else{
                         System.out.println("In unification, multiple InChiKey :/ "+uinchi);
                     }
-
                 }
-
             }catch(NullPointerException e) {
                 System.out.println("Problem in retrieving redundant Inchikey");
             }
-
-
-
-
         }
         System.out.println("Finished checking redundancy - creating Unique molecule objects for non-redundant molecules");
 
@@ -125,7 +116,7 @@ public class MoleculeUnificationService {
                 Molecule newMol = mr.findByInchikey(uinchi);
                 if(newMol==null && (oms.get(0).isANP() || oms.get(0).isASM())) {
 
-                     newMol = new Molecule();
+                    newMol = new Molecule();
 
                     newMol.setInchikey(oms.get(0).getInchikey());
                     newMol.setInchi(oms.get(0).getInchi());
@@ -185,10 +176,7 @@ public class MoleculeUnificationService {
             m = computeAdditionalMolecularFeatures(m);
 
             mr.save(m);
-
-
         }
-
     }
 
 
@@ -197,26 +185,12 @@ public class MoleculeUnificationService {
 
     public void computeAdditionalMolecularFeatures(String source, String status){
 
-        System.out.println("Calculating molecular parameters for "+source+" "+status);
-
-
+        System.out.println("Calculating additional molecular parameters for "+source+" "+status);
         List<Molecule> allmols = mr.findAllMoleculesByStatusAndBySource(source, status);
-
-
-        System.out.println(allmols.size());
-
-
         for(Molecule m : allmols){
-
             m = computeAdditionalMolecularFeatures(m);
-
-
-
             mr.save(m);
-
-
         }
-
     }
 
 
@@ -243,7 +217,6 @@ public class MoleculeUnificationService {
         //compute molecular formula
         m.setMolecularFormula(mfm.getString(mfm.getMolecularFormula(im) ));
 
-
         //compute number of carbons, of nitrogens, of oxygens
         m.setNumberOfCarbons(mfm.getElementCount(mfm.getMolecularFormula(im), "C"));
 
@@ -254,14 +227,17 @@ public class MoleculeUnificationService {
         m.setMolecularWeight( acm.getMolecularWeight(im) );
 
         //ratio number carbons / size
-
         m.setRatioCsize(  (double)m.getNumberOfCarbons() / (double)m.getHeavy_atom_number() );
 
-
+        // cleaning the NaNs
+        if(m.getMolecularWeight().isNaN()){
+            m.setMolecularWeight(0.0);
+        }
+        if(m.getRatioCsize().isNaN()){
+            m.setRatioCsize(0.0);
+        }
         return(m);
     }
-
-
 }
 
 

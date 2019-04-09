@@ -25,57 +25,44 @@ import java.util.Map;
 @Service
 public class DataSetUploaderService {
 
-    //uploads data in ori_molecule
-    // adds to molecule if needed
-    // computes the fragments only for the new molecules
-    // compute the scores from the fragments only from the new molecules
-    // updates the scores in the molecule table
+    /**
+     * uploads data in OriMolecule
+     * adds to molecule if needed
+     * computes the fragments only for the new molecules
+     * compute the scores from the fragments only from the new molecules
+     * updates the scores in the molecule table
+     *
+     *  alternative:
+     *  compute the scores for all molecules (update the scores)
+     */
 
-    //alternative:
-    // compute the scores for all molecules (update the scores)
 
+    private final LinearSugars linearSugarChains = LinearSugars.getInstance();
+    private final int height = 2;
+    @Autowired
+    OriMoleculeRepository omr;
+    @Autowired
+    MoleculeRepository mr;
+    @Autowired
+    FragmentWithSugarRepository fr;
+    @Autowired
+    FragmentWithoutSugarRepository fro;
+    @Autowired
+    MoleculeFragmentCpdRepository cpdRepository;
+    @Autowired
+    AtomContainerToMoleculeService atomContainerToMoleculeService;
+    ElectronDonation model = ElectronDonation.cdk();
+    CycleFinder cycles = Cycles.cdkAromaticSet();
+    Aromaticity aromaticity = new Aromaticity(model, cycles);
     private String fileName = null;
     private String source = null;
     private String status = null;
 
-
-    @Autowired
-    OriMoleculeRepository omr;
-
-    @Autowired
-    MoleculeRepository mr;
-
-
-    @Autowired
-    FragmentWithSugarRepository fr;
-
-    @Autowired
-    FragmentWithoutSugarRepository fro;
-
-    @Autowired
-    MoleculeFragmentCpdRepository cpdRepository;
-
-
-    @Autowired
-    AtomContainerToMoleculeService atomContainerToMoleculeService;
-
-
-
-
-
-    ElectronDonation model = ElectronDonation.cdk();
-    CycleFinder cycles = Cycles.cdkAromaticSet();
-    Aromaticity aromaticity = new Aromaticity(model, cycles);
-
-
-    private final LinearSugars linearSugarChains = LinearSugars.getInstance();
-
-    private final int height = 2;
-
-
-
-
-
+    /**
+     * @param fileName
+     * @param source
+     * @param status
+     */
     public void readNewDataset(String fileName, String source, String status){
 
         this.fileName = fileName;
@@ -95,6 +82,9 @@ public class DataSetUploaderService {
 
     }
 
+    /**
+     * adds the newly read dataset to Molecule table
+     */
     public void addNewDatasetToMolecule(){
 
         List<OriMolecule> oriMolecules = omr.findBySourceAndStatus(this.source, this.status);
@@ -102,22 +92,15 @@ public class DataSetUploaderService {
         for(OriMolecule oriMolecule : oriMolecules){
 
             // test if already in Molecule
-
-
-
             if( mr.findByInchikey(oriMolecule.getInchikey()) != null ){
                 //already in molecule
                 Molecule molecule = mr.findByInchikey(oriMolecule.getInchikey());
-
                 oriMolecule.setUnique_mol_id(molecule.getId());
-
                 omr.save(oriMolecule);
             }
             else{
                 //create new molecule
-
                 Molecule molecule = new Molecule();
-
                 molecule.setInchikey(oriMolecule.getInchikey());
                 molecule.setInchi(oriMolecule.getInchi());
                 molecule.setSmiles(oriMolecule.getSmiles());
@@ -137,27 +120,20 @@ public class DataSetUploaderService {
                 else{
                     molecule.setIs_a_NP(-1);
                 }
-
                 molecule = mr.save(molecule);
-
                 oriMolecule.setUnique_mol_id(molecule.getId());
-
                 omr.save(oriMolecule);
-
             }
-
-
         }
     }
 
 
+    /**
+     * calculates fragments (atom signatures) for newly read molecules and inserts in the molecule_fragment_cpd table
+     */
     public void calculateFragmentsForNewMolecules(){
-
         System.out.println("Start computing fragments for new molecules");
-
-
         List<Molecule> moleculesToFragment = mr.findAllMoleculesWithoutNPLSByStatusAndBySource(this.source, this.status);
-
         for(Molecule molecule : moleculesToFragment) {
             IAtomContainer ac = atomContainerToMoleculeService.createAtomContainer(molecule);
 
@@ -165,16 +141,13 @@ public class DataSetUploaderService {
 
             if (acNoSugar != null) {
                 molecule.setContainsSugar(1);
-
                 molecule.setSugar_free_total_atom_number(acNoSugar.getAtomCount());
-
                 int noSugarHeavyAtomCount = 0;
                 for(IAtom a: acNoSugar.atoms()){
                     if(!a.getSymbol().equals("H")){
                         noSugarHeavyAtomCount=noSugarHeavyAtomCount+1;
                     }
                 }
-
                 molecule.setSugar_free_heavy_atom_number(noSugarHeavyAtomCount);
             } else {
                 molecule.setContainsSugar(0);
@@ -183,7 +156,6 @@ public class DataSetUploaderService {
             }
 
             molecule = mr.save(molecule);
-
 
             Hashtable<String, Integer> countedFragments = generateCountedAtomSignatures(ac, height);
             for (String fragment : countedFragments.keySet()) {
@@ -214,14 +186,10 @@ public class DataSetUploaderService {
                     mfc.setHeight(height);
                     mfc.setNbfragmentinmolecule(countedFragments.get(fragment));
                     mfc.setComputed_with_sugar(1);
-
                     cpdRepository.save(mfc);
-
-
                 }
 
             }
-
 
             Hashtable<String, Integer> countedFragmentsNoSugar = generateCountedAtomSignatures(acNoSugar, height);
             if(countedFragmentsNoSugar != null){
@@ -268,6 +236,9 @@ public class DataSetUploaderService {
     }
 
 
+    /**
+     * Calculates NP-likeness score for newly read molecules
+     */
     public void calculateNplsForNewMolecules(){
         System.out.println("Start computing NPLS for new molecules");
 
@@ -275,7 +246,7 @@ public class DataSetUploaderService {
         List<Molecule> moleculesToCompute = mr.findAllMoleculesWithoutNPLSByStatusAndBySource(this.source, this.status);
         for(Molecule molecule : moleculesToCompute) {
 
-            /********* WITH! SUGAR ********/
+            // With sugar
             Double npl_sugar_score = 0.0;
             List<Object[]> sugarFragmentScores = cpdRepository.findAllSugarFragmentsByMolid(molecule.getId(), height); //returns fragment_id, scorenp, scoresm
             for(Object[] obj : sugarFragmentScores){

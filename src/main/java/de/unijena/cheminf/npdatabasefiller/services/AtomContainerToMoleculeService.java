@@ -9,6 +9,11 @@ import org.openscience.cdk.silent.SilentChemObjectBuilder;
 import org.openscience.cdk.smiles.SmilesParser;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author mSorok
+ * Transforms a IAtomContainer in Molecule object
+ */
+
 @Service
 public class AtomContainerToMoleculeService implements AtomContainerToMolInstanceService {
     @Override
@@ -18,19 +23,14 @@ public class AtomContainerToMoleculeService implements AtomContainerToMolInstanc
         m.setInchi(ac.getProperty("INCHI"));
         m.setInchikey(ac.getProperty("INCHIKEY"));
         m.setSmiles(ac.getProperty("SMILES"));
-
-
         m.setTotal_atom_number(ac.getAtomCount());
-
         int heavyAtomCount = 0;
         for(IAtom a : ac.atoms()){
             if(!a.getSymbol().equals("H")){
                 heavyAtomCount=heavyAtomCount+1;
             }
         }
-
         m.setHeavy_atom_number(heavyAtomCount);
-
         return m;
     }
 

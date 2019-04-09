@@ -66,7 +66,9 @@ public class NPLScorer {
 
 
                 List<Object[]> sugarfreeFragmentScores = cpdRepository.findAllSugarfreeFragmentsByMolid(molecule.getId(), height);
-                for(Object[] obj : sugarfreeFragmentScores){
+                for(Object[] obj : sugarfreeFragmentScores) {
+
+
 
                     Integer nbFragmentsInMolecule = Integer.parseInt(obj[1].toString());
 
@@ -76,10 +78,11 @@ public class NPLScorer {
 
 
                     //computing the score without fragments centered on H
-                    String signature = obj[4].toString();
-                    if(!signature.startsWith("[H]")){
+                    String signature = obj[3].toString();
+                    if (!signature.startsWith("[H]")) {
                         npl_score_noh = npl_score_noh + (scorenp * nbFragmentsInMolecule);
                     }
+
                 }
                 molecule.setNpl_score(npl_score/ (double)molecule.getSugar_free_total_atom_number() );
                 molecule.setNpl_noh_score(npl_score_noh / (double)molecule.getSugar_free_heavy_atom_number());
