@@ -43,7 +43,7 @@ To launch step 2 or step 3, edit the docker-compose.yml file appropriately, then
 
 ```
 $ docker-compose up -d --no-deps --build npls-db-filler
-``
+```
 
 The unarchived source code for this project is available at https://github.com/mSorok/NPdatabaseFiller and can be recompiled as a maven project.
 
