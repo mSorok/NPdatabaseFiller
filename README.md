@@ -15,11 +15,17 @@ The NPdatabaseFiller application has three modes, allowing to compute the NP-lik
 
 The mode can be changed by editing the docker-compose.yml file in the "commands" part:
 
-1. generate all scores and the whole database from scratch:
-command: "/nplsmol/molecular_file_locations.txt fromScratch" # where the first argument is the file precising molecular files to input, their source and status (NP, SM or BIOGENIC)
-``
-2. compute NP-likeness scores only for one file (containing up to 500 000 molecules):
-command: "file.sdf SOURCE NP addNewData" # first argument: molecular file (SDF, MOL or SMI), second argument: source (database name for example), third argument: status (NP, SM or BIOGENIC), fourth argument: "addNewData" tag 
+1. generate all scores and the whole database from scratch; command: 
+```
+/nplsmol/molecular_file_locations.txt fromScratch
+```
+(where the first argument is the file precising molecular files to input, their source and status (NP, SM or BIOGENIC))
+
+2. compute NP-likeness scores only for one file (containing up to 500 000 molecules); command:
+```
+file.sdf SOURCE NP addNewData
+```
+(first argument: molecular file (SDF, MOL or SMI), second argument: source (database name for example), third argument: status (NP, SM or BIOGENIC), fourth argument: "addNewData" tag)
 
 3. update all scores (after insertion of a big number of molecules for example, or a reimplementation of the NP-likeness formula, etc)
 command: "updateScores"
@@ -33,7 +39,7 @@ $ docker-compose up -d
 ```
 
 When the calculations are over, the java container ('npdatabasefiller_npls-db-filler_1' by default) will stop automatically.
-To launch step 2 or step 3, edit the docker-compose.yml file appropriately, then rebuild and relaunch the docker compose as following (without putting down the mysql container):
+To launch step 2 or step 3, edit the docker-compose.yml file appropriately, then rebuild a`nd relaunch the docker compose as following (without putting down the mysql container):
 
 ```
 $ docker-compose up -d --no-deps --build npls-db-filler
