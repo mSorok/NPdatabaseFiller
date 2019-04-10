@@ -1,13 +1,15 @@
 package de.unijena.cheminf.npdatabasefiller.services;
 
-
 import org.paukov.combinatorics3.Generator;
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class DependingFragmentFrequencyCalculatorService {
-
+    /**
+     * Unfinished service
+     * @param withSugar
+     */
 
     public void doWork(boolean withSugar){
 
@@ -18,7 +20,6 @@ public class DependingFragmentFrequencyCalculatorService {
                     .simple(2)
                     .stream()
                     .forEach(System.out::println);
-
         }
         else{
             //TODO - sugar free fragmments

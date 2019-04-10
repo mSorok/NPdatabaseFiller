@@ -13,11 +13,13 @@ services:
     - /home/msorok/Projects/NP/NPdatabaseFiller:/mysqldata
 
   npls-db-filler:
-    image: npls/npdatabasefiller:latest
+    image: npls/npdatabasefiller:2
     build:
       context: ./
       dockerfile: Dockerfile
-    command: "/nplsmol/molecular_file_locations.txt"
+    command: "/nplsmol/molecular_file_locations.txt fromScratch"
+    #command: "MolFilesCollection/SANCDB/sancdb.smi SANCDB NP addNewData"
+    #command: "updateScores"
     volumes:
     - /home/msorok/Projects/NP/NPdatabaseFiller/nplsmol:/nplsmol
     depends_on:

@@ -264,10 +264,9 @@ public class DataSetUploaderService {
             }
 
 
-            /********* WITHOUT SUGAR ********/
+            // without sugar
             Double npl_score = 0.0;
             Double npl_score_noh = 0.0;
-
             List<Object[]> sugarfreeFragmentScores = cpdRepository.findAllSugarfreeFragmentsByMolid(molecule.getId(), height);
             for(Object[] obj : sugarfreeFragmentScores){
 
@@ -285,7 +284,6 @@ public class DataSetUploaderService {
                 }
             }
 
-
             molecule.setNpl_score(npl_score/(double)molecule.getSugar_free_total_atom_number() );
             molecule.setNpl_noh_score(npl_score_noh / (double)molecule.getSugar_free_heavy_atom_number());
 
@@ -297,26 +295,8 @@ public class DataSetUploaderService {
             }
 
             mr.save(molecule);
-
-
         }
-
-        //retrieve molecules without NPLS
-
-        //calculate the score for them
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     private IAtomContainer removeSugars(IAtomContainer molecule){
@@ -370,9 +350,6 @@ public class DataSetUploaderService {
     }
 
 
-
-
-
     private boolean shouldRemoveRing(IAtomContainer possibleSugarRing, IAtomContainer molecule, IRingSet sugarRingsSet) {
 
         boolean shouldRemoveRing = false;
@@ -416,18 +393,11 @@ public class DataSetUploaderService {
     }
 
 
-
-
-
     public Hashtable<String, Integer> generateCountedAtomSignatures(IAtomContainer atomContainer, Integer height) {
 
         List<String> atomSignatures = new ArrayList<>();
 
         Hashtable<String, Integer> countedAtomSignatures = new Hashtable<>();
-
-
-
-        //atomContainer = calculateAromaticity(atomContainer);
 
         if(atomContainer !=null && !atomContainer.isEmpty()) {
 
@@ -447,10 +417,7 @@ public class DataSetUploaderService {
                 else{
                     countedAtomSignatures.put(signature,1);
                 }
-
             }
-
-
             return countedAtomSignatures;
         }
         else{
