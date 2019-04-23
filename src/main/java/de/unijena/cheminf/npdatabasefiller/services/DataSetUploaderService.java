@@ -277,7 +277,7 @@ public class DataSetUploaderService {
                 npl_score = npl_score + (scorenp * nbFragmentsInMolecule);
 
                 //computing the score without fragments centered on H
-                String signature = obj[4].toString();
+                String signature = obj[3].toString();
                 if(!signature.startsWith("[H]")){
 
                     npl_score_noh = npl_score_noh + (scorenp * nbFragmentsInMolecule);

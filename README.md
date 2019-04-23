@@ -1,7 +1,13 @@
 # NP-Likeness scorer - Database Filler
 
 Author: Maria Sorokina, maria.sorokina@uni-jena.de
-Last modified: 10.04.2019
+Last modified: 23.04.2019
+
+Natural products (NPs), often also referred to as secondary metabolites, are small molecules synthesized by living organisms. Natural products are of interest due to their bioactivity and in this context as starting points for the development of drugs and other bioactive synthetic products. In 2008, Ertl and coworkers suggested a natural product (NP) likeness score, which, for a given molecule its similarity to the structure space covered by NPs compared to the structure space covered by synthetic molecules (SM). Such a score could be used to prioritize compounds from virtual libraries. Later, Jayaseelan and coauthors presented a pure open data, open source version of the NP-likeness scorer  (Ertl et al., 2008; Jayaseelan et al., 2012).
+
+This archive contains the first part of the NP-likeness software suite NaPLeS (Natural Products Likeness Scorer). The suite consists of a web application that allows computing the NP-likeness score online, of an easy to install local scorer to compute NP-likeness for big datasets (this archive) and a MySQL database containing a large number of NPs from diverse public databases with pre-computed NP-likeness scores and other metrics (the NPLikenessDB.sql file in this archive).
+
+The NaPLeS web application is available at naples.naturalproducts.net
 
 
 This directory contains:
@@ -44,6 +50,7 @@ To launch step 2 or step 3, edit the docker-compose.yml file appropriately, then
 ```
 $ docker-compose up -d --no-deps --build npls-db-filler
 ```
+
 
 The unarchived source code for this project is available at https://github.com/mSorok/NPdatabaseFiller and can be recompiled as a maven project.
 
