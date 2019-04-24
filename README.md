@@ -17,6 +17,7 @@ This directory contains:
 - a docker-compose.yml file allowing to build the docker-compose environment (the Java app and the MySQL database)
 - target directory containing the NPdatabaseFiller application jar and a helper jar
 - nplsmol directory containing the molecular data. This directory is a volume for the NPdatabaseFiller Docker container
+- the src directory containing the source code and the dependencies
 - this README
 
 The NPdatabaseFiller application has three modes, allowing to compute the NP-likeness scores for molecules from scratch, to add new molecules to the database and to compute their NP-likeness scores based on the precomputed fragment frequencies, and to update the NP-likeness scors (this re-computes all fragment frequencies then recomputes all NP-likeness scores).
