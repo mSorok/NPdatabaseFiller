@@ -7,6 +7,8 @@ Natural products (NPs), often also referred to as secondary metabolites, are sm
 
 This archive contains the first part of the NP-likeness software suite NaPLeS (Natural Products Likeness Scorer). The suite consists of a web application that allows computing the NP-likeness score online, of an easy to install local scorer to compute NP-likeness for big datasets (this archive) and a MySQL database containing a large number of NPs from diverse public databases with pre-computed NP-likeness scores and other metrics (the NPLikenessDB.sql file in this archive).
 
+The NP-likeness score is computed for the both deglycosylated and complete molecules, all the subsequent scores and calculations are available in the produced database, but only deglycosylated scores are shown in the web application described in the third part of this section. Sugar moieties are the most frequent sub-structures in natural products. NP-likeness score of deglycosylated molecules allows to identify molecular fragments specific to NPs without this bias. NP-likeness score of complete molecules is good for comparison and allows to have a complete overview of fragment frequencies. It is up to the user to choose the appropriate score for their own application.
+
 The NaPLeS web application is available at naples.naturalproducts.net
 
 
