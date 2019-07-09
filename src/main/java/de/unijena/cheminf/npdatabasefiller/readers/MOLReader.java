@@ -37,7 +37,6 @@ public class MOLReader implements Reader {
     ArrayList<IAtomContainer> listOfMolecules;
 
     private IteratingSDFReader reader = null;
-    private SDFWriter moleculeWithScoreWriter = null;
 
     OriMoleculeRepository oriMoleculeRepository;
 

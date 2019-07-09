@@ -141,7 +141,7 @@ public class SDFReader implements Reader {
 
 
 
-            while (reader.hasNext() && count <= 600000) {
+            while (reader.hasNext() && count <= 400000) {
                 try {
                     IAtomContainer molecule = reader.next();
 

@@ -33,6 +33,9 @@ public class SMILESReader implements Reader {
     private LineNumberReader smilesReader;
 
     MoleculeChecker moleculeChecker;
+    OriMoleculeRepository oriMoleculeRepository;
+
+    AtomContainerToOriMoleculeService ac2om;
 
 
 
@@ -44,9 +47,7 @@ public class SMILESReader implements Reader {
 
     }
 
-    OriMoleculeRepository oriMoleculeRepository;
 
-    AtomContainerToOriMoleculeService ac2om;
 
 
 
@@ -133,7 +134,7 @@ public class SMILESReader implements Reader {
             System.out.println("SMILES reader creation");
 
 
-            while ((line = smilesReader.readLine()) != null  && count <= 600000) {
+            while ((line = smilesReader.readLine()) != null  && count <= 400000) {
 
                 String smiles_names = line;
 
