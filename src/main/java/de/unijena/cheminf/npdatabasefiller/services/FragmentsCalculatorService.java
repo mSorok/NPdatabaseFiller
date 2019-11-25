@@ -50,6 +50,9 @@ public class FragmentsCalculatorService {
     @Autowired
     AtomContainerToMoleculeService atomContainerToMoleculeService;
 
+    @Autowired
+    SugarRemovalService sugarRemovalService;
+
 
 
 
@@ -423,110 +426,6 @@ try {
 
 
 
-    private IAtomContainer removeSugars(IAtomContainer molecule){
-
-        IAtomContainer newMolecule = null;
-        try {
-            newMolecule = molecule.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-
-        try {
-
-            IRingSet ringset = Cycles.sssr(newMolecule).toRingSet();
-
-            // RING SUGARS
-            for (IAtomContainer one_ring : ringset.atomContainers()) {
-                try {
-                    IMolecularFormula molecularFormula = MolecularFormulaManipulator.getMolecularFormula(one_ring);
-                    String formula = MolecularFormulaManipulator.getString(molecularFormula);
-                    IBond.Order bondorder = AtomContainerManipulator.getMaximumBondOrder(one_ring);
-
-                    if (formula.equals("C5O") | formula.equals("C4O") | formula.equals("C6O")) {
-                        if (IBond.Order.SINGLE.equals(bondorder)) {
-                            if (shouldRemoveRing(one_ring, newMolecule, ringset) == true) {
-                                for (IAtom atom : one_ring.atoms()) {
-                                    {
-
-                                        newMolecule.removeAtom(atom);
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                }catch(NullPointerException e){
-                    return null;
-                }
-            }
-            Map<Object, Object> properties = newMolecule.getProperties();
-            IAtomContainerSet molset = ConnectivityChecker.partitionIntoMolecules(newMolecule);
-            for (int i = 0; i < molset.getAtomContainerCount(); i++) {
-                molset.getAtomContainer(i).setProperties(properties);
-                int size = molset.getAtomContainer(i).getBondCount();
-                if (size >= 5) {
-                    if (!linearSugarChains.hasSugarChains(molset.getAtomContainer(i), ringset.getAtomContainerCount())) {
-
-                        return (IAtomContainer) molset.getAtomContainer(i);
-                    }
-                }
-            }
-            //
-        } catch (NullPointerException e) {
-        } catch (CDKException e) {
-        }
-        return null;
-
-    }
-
-
-
-
-
-    private boolean shouldRemoveRing(IAtomContainer possibleSugarRing, IAtomContainer molecule, IRingSet sugarRingsSet) {
-
-        boolean shouldRemoveRing = false;
-        List<IAtom> allConnectedAtoms = new ArrayList<IAtom>();
-        List<IBond> bonds = new ArrayList<IBond>();
-        int oxygenAtomCount = 0;
-
-        IRingSet connectedRings = sugarRingsSet.getConnectedRings((IRing) possibleSugarRing);
-
-        /*
-         * get bonds to check for bond order of connected atoms in a sugar ring
-         *
-         */
-        for (IAtom atom : possibleSugarRing.atoms()) {
-            bonds.addAll(molecule.getConnectedBondsList(atom));
-        }
-
-        if (IBond.Order.SINGLE.equals(BondManipulator.getMaximumBondOrder(bonds))
-                && connectedRings.getAtomContainerCount() == 0) {
-
-            /*
-             * get connected atoms of all atoms in sugar ring to check for glycoside bond
-             */
-            for (IAtom atom : possibleSugarRing.atoms()) {
-                List<IAtom> connectedAtoms = molecule.getConnectedAtomsList(atom);
-                allConnectedAtoms.addAll(connectedAtoms);
-            }
-
-            for (IAtom connected_atom : allConnectedAtoms) {
-                if (!possibleSugarRing.contains(connected_atom)) {
-                    if (connected_atom.getSymbol().matches("O")) {
-                        oxygenAtomCount++;
-                    }
-                }
-            }
-            if (oxygenAtomCount > 0) {
-                return true;
-            }
-        }
-        return shouldRemoveRing;
-    }
-
-
 
 
 
@@ -541,7 +440,7 @@ try {
             IAtomContainer ac = atomContainerToMoleculeService.createAtomContainer(molecule);
 
             if(withSugar==0){
-                ac = removeSugars(ac);
+                ac = sugarRemovalService.removeSugars(ac);
                 if(ac != null) {
 
                     molecule.setSugar_free_total_atom_number(ac.getAtomCount());
@@ -637,7 +536,7 @@ try {
             IAtomContainer ac = atomContainerToMoleculeService.createAtomContainer(molecule);
 
             if (withSugar == 0) {
-                ac = removeSugars(ac);
+                ac = sugarRemovalService.removeSugars(ac);
 
                 if(ac != null && !ac.isEmpty() && molecule != null && molecule.getTotal_atom_number() != null && ac.getAtomCount() == molecule.getTotal_atom_number()){
                     molecule.setContainsSugar(0);

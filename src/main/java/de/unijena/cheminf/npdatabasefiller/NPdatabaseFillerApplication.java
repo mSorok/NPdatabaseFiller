@@ -80,7 +80,7 @@ public class NPdatabaseFillerApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        System.out.println("Code version from 09 April 2019");
+        System.out.println("Code version from 25 november 2019");
 
         if (args.length > 0) {
 
