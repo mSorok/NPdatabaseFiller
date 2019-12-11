@@ -246,7 +246,7 @@ public class MoleculeUnificationService {
 
         m.setNumberOfNitrogens(mfm.getElementCount(mfm.getMolecularFormula(im), "N"));
 
-        m.setMolecularWeight( acm.getMolecularWeight(im) );
+        m.setMolecularWeight( acm.getMass(im) );
 
         //ratio number carbons / size
         m.setRatioCsize(  (double)m.getNumberOfCarbons() / (double)m.getHeavy_atom_number() );
